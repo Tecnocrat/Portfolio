@@ -344,7 +344,10 @@ function initInteractiveCube() {
     let rotationX = -20;  // Initial tilt
     let rotationY = 0;
     let velocityX = 0;
-    let velocityY = 0.5;  // Initial spin speed (matches CSS animation)
+    let velocityY = 0.5;  // Initial spin speed
+    
+    const DEFAULT_VELOCITY_Y = 0.5;  // Constant rotation speed (left to right)
+    const RETURN_SPEED = 0.02;       // How fast velocity returns to default
     
     // Disable CSS animation - we'll handle it with JS
     cube.style.animation = 'none';
@@ -359,12 +362,15 @@ function initInteractiveCube() {
     
     function animate() {
         if (!isDragging) {
-            // Apply velocity with friction
+            // Apply velocity
             rotationY += velocityY;
             rotationX += velocityX;
             
-            // Gentle friction to slow down X rotation (tilt)
-            velocityX *= 0.98;
+            // Gradually return velocityY to default constant rotation
+            velocityY += (DEFAULT_VELOCITY_Y - velocityY) * RETURN_SPEED;
+            
+            // Gradually slow down X velocity (tilt) back to zero
+            velocityX *= 0.95;
         }
         
         updateCube();
@@ -389,12 +395,11 @@ function initInteractiveCube() {
         const deltaX = e.clientX - previousMouseX;
         const deltaY = e.clientY - previousMouseY;
         
-        // Update rotation based on drag
+        // Update rotation based on drag - full 360 freedom
         rotationY += deltaX * 0.5;
         rotationX -= deltaY * 0.3;
         
-        // Clamp X rotation to prevent flipping
-        rotationX = Math.max(-60, Math.min(60, rotationX));
+        // No clamping - allow full 360 rotation on all axes
         
         // Track velocity for momentum
         velocityY = deltaX * 0.1;
@@ -409,11 +414,7 @@ function initInteractiveCube() {
         
         isDragging = false;
         cubeContainer.style.cursor = 'grab';
-        
-        // Ensure minimum spin velocity when released
-        if (Math.abs(velocityY) < 0.3) {
-            velocityY = 0.5; // Resume default spin
-        }
+        // Velocity will gradually return to default in animate()
     }
     
     // Touch support for mobile
@@ -434,9 +435,9 @@ function initInteractiveCube() {
         const deltaX = e.touches[0].clientX - previousMouseX;
         const deltaY = e.touches[0].clientY - previousMouseY;
         
+        // Full 360 rotation
         rotationY += deltaX * 0.5;
         rotationX -= deltaY * 0.3;
-        rotationX = Math.max(-60, Math.min(60, rotationX));
         
         velocityY = deltaX * 0.1;
         velocityX = -deltaY * 0.05;
@@ -449,9 +450,7 @@ function initInteractiveCube() {
     
     function onTouchEnd() {
         isDragging = false;
-        if (Math.abs(velocityY) < 0.3) {
-            velocityY = 0.5;
-        }
+        // Velocity will gradually return to default in animate()
     }
     
     // Mouse events - attach to container for better hit detection
