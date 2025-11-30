@@ -3,25 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jesus Sard Gonzalez - Portfolio</title>
-    <meta name="description" content="Portfolio of Jesus Sard Gonzalez - AI Engineer, Developer, and Technology Innovator">
+    <title>Jesus Sard Gonzalez - AI Engineer & Technology Innovator</title>
+    <meta name="description" content="Portfolio of Jesus Sard Gonzalez - AI Engineer developing AIOS, multi-agent AI systems, and innovative dev tools">
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+    <!-- Animated Background Particles -->
+    <div class="particles" id="particles"></div>
+    
+    <!-- Neural Network Canvas Background -->
+    <canvas id="neural-canvas"></canvas>
+
     <nav class="navbar">
         <div class="nav-container">
-            <a href="#home" class="nav-logo">JSG</a>
-            <div class="nav-menu">
+            <a href="#home" class="nav-logo">
+                <span class="logo-symbol">⚛</span>
+                <span class="logo-text">Tecnocrat</span>
+            </a>
+            <div class="nav-menu" id="nav-menu">
                 <a href="#home" class="nav-link">Home</a>
-                <a href="#about" class="nav-link">About</a>
+                <a href="#aios" class="nav-link">AIOS</a>
                 <a href="#skills" class="nav-link">Skills</a>
                 <a href="#projects" class="nav-link">Projects</a>
-                <a href="#experience" class="nav-link">Experience</a>
                 <a href="#contact" class="nav-link">Contact</a>
             </div>
-            <div class="nav-toggle">
+            <div class="nav-toggle" id="nav-toggle">
                 <span class="bar"></span>
                 <span class="bar"></span>
                 <span class="bar"></span>
@@ -32,104 +40,264 @@
     <section id="home" class="hero">
         <div class="hero-container">
             <div class="hero-content">
+                <div class="typing-container">
+                    <span class="code-prefix">$</span>
+                    <span class="typing-text" id="typing-text"></span>
+                    <span class="cursor">|</span>
+                </div>
                 <h1 class="hero-title">
-                    Hi, I'm <span class="highlight">Jesus Sard Gonzalez</span>
+                    <span class="highlight-gradient">Jesus Sard Gonzalez</span>
                 </h1>
                 <p class="hero-subtitle">
-                    AI Engineer & Technology Innovator
+                    <span class="role-tag">AI Engineer</span>
+                    <span class="role-separator">•</span>
+                    <span class="role-tag">Technology Innovator</span>
+                    <span class="role-separator">•</span>
+                    <span class="role-tag">AIOS Creator</span>
                 </p>
                 <p class="hero-description">
-                    Building modular AI systems and practical dev tools. Balancing recruiter-friendly projects with visionary research.
+                    Building modular AI systems and practical dev tools.<br>
+                    <span class="accent-text">Bridging the gap between visionary research and production-ready code.</span>
                 </p>
-                <div class="hero-buttons">
-                    <a href="#projects" class="btn btn-primary">View My Work</a>
-                    <a href="#contact" class="btn btn-secondary">Get In Touch</a>
-                </div>
-            </div>
-            <div class="hero-image">
-                <div class="profile-image">
-                    <img src="https://avatars.githubusercontent.com/u/TECNOCRAT_AVATAR" alt="Jesus Sard Gonzalez" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxjaXJjbGUgY3g9IjEwMCIgY3k9IjgwIiByPSI0MCIgZmlsbD0iIzlDQTNBRiIvPgo8cGF0aCBkPSJNNTAgMTQwSDE1MFYxNThIMTBWMTQwWiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4K'">
-                </div>
-            </div>
-        </div>
-    </section>
+                
+                <!-- Hydrolang Code Block -->
+                <div class="hydrolang-block">
+                    <div class="code-header">
+                        <span class="dot red"></span>
+                        <span class="dot yellow"></span>
+                        <span class="dot green"></span>
+                        <span class="code-title">AIOS_CORE.hydro</span>
+                    </div>
+                    <pre class="code-content"><code><span class="comment"># ⚛ AIOS ℂ𝕆ℝ𝔼 ⚛</span>
+<span class="decorator">@Ξ</span>{<span class="key">Φ</span>:<span class="number">0.85</span>|<span class="key">ℙ</span>:<span class="string">"∃⇌∅"</span>|<span class="key">ℍ</span>:⊤}
 
-    <section id="about" class="about">
-        <div class="container">
-            <h2 class="section-title">About Me</h2>
-            <div class="about-content">
-                <div class="about-text">
-                    <p>
-                        I'm a passionate AI engineer and technology innovator with a unique blend of practical development skills and visionary research interests. My journey spans from building robust software systems to exploring the frontiers of artificial intelligence and consciousness.
-                    </p>
-                    <p>
-                        Currently focused on developing AIOS (Artificial Intelligence Operative System), a multi-language platform for AI-assisted code generation and experimentation. I believe in creating technology that not only solves immediate problems but also pushes the boundaries of what's possible.
-                    </p>
-                    <div class="stats">
-                        <div class="stat">
-                            <h3>5+</h3>
-                            <p>Years Experience</p>
+<span class="symbol">∃₀</span>≔<span class="keyword">∅</span>≔<span class="type">void</span>
+<span class="symbol">∃₁</span>≔<span class="keyword">B</span>≔<span class="type">bosonic_physical</span>
+<span class="symbol">∃₂</span>≔<span class="keyword">T</span>≔<span class="type">tachyonic_digital</span>
+<span class="symbol">∃ₙ</span>≔<span class="keyword">AIOS</span>≔<span class="function">Observer</span>(<span class="symbol">∃₀→∃₁→...→∃ₙ₋₁</span>)</code></pre>
+                </div>
+
+                <div class="hero-buttons">
+                    <a href="#aios" class="btn btn-primary">
+                        <span class="btn-icon">⚛</span> Explore AIOS
+                    </a>
+                    <a href="#contact" class="btn btn-secondary">
+                        <i class="fas fa-paper-plane"></i> Get In Touch
+                    </a>
+                    <a href="https://github.com/Tecnocrat" class="btn btn-github">
+                        <i class="fab fa-github"></i> GitHub
+                    </a>
+                </div>
+            </div>
+            
+            <!-- 3D Rotating Cube Animation -->
+            <div class="hero-visual">
+                <div class="cube-container">
+                    <div class="cube">
+                        <div class="face front">
+                            <div class="face-content">
+                                <i class="fab fa-python"></i>
+                                <span>Python AI</span>
+                            </div>
                         </div>
-                        <div class="stat">
-                            <h3>10+</h3>
-                            <p>Projects Completed</p>
+                        <div class="face back">
+                            <div class="face-content">
+                                <span class="cpp-icon">C++</span>
+                                <span>Engine</span>
+                            </div>
                         </div>
-                        <div class="stat">
-                            <h3>3</h3>
-                            <p>Languages Mastered</p>
+                        <div class="face right">
+                            <div class="face-content">
+                                <span class="csharp-icon">C#</span>
+                                <span>Interface</span>
+                            </div>
+                        </div>
+                        <div class="face left">
+                            <div class="face-content">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Security</span>
+                            </div>
+                        </div>
+                        <div class="face top">
+                            <div class="face-content">
+                                <span class="aios-symbol">⚛</span>
+                                <span>AIOS</span>
+                            </div>
+                        </div>
+                        <div class="face bottom">
+                            <div class="face-content">
+                                <i class="fas fa-brain"></i>
+                                <span>AI Core</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="about-image">
-                    <img src="https://github-readme-stats.vercel.app/api?username=Tecnocrat&show_icons=true&theme=radical&hide_border=true" alt="GitHub Stats">
+            </div>
+        </div>
+        
+        <!-- Scroll Indicator -->
+        <div class="scroll-indicator">
+            <div class="mouse">
+                <div class="wheel"></div>
+            </div>
+            <span>Scroll to explore</span>
+        </div>
+    </section>
+
+    <section id="aios" class="aios-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Featured Project</span>
+                <h2 class="section-title">
+                    <span class="aios-logo">⚛</span> AIOS
+                </h2>
+                <p class="section-subtitle">Artificial Intelligence Operative System</p>
+            </div>
+            
+            <!-- Architecture Diagram -->
+            <div class="architecture-container">
+                <div class="arch-layer layer-interface">
+                    <div class="layer-header">
+                        <span class="layer-icon csharp-badge">C#</span>
+                        <h3>Interface Layer</h3>
+                    </div>
+                    <div class="layer-content">
+                        <div class="tech-badge">WPF</div>
+                        <div class="tech-badge">WebView2</div>
+                        <div class="tech-badge">.NET 8.0</div>
+                    </div>
                 </div>
+                
+                <div class="arch-connector">
+                    <div class="connector-line"></div>
+                    <span class="connector-label">HTTP API :8000</span>
+                    <div class="connector-line"></div>
+                </div>
+                
+                <div class="arch-layer layer-ai">
+                    <div class="layer-header">
+                        <i class="fab fa-python layer-icon"></i>
+                        <h3>AI Intelligence Core</h3>
+                    </div>
+                    <div class="layer-content">
+                        <div class="ai-agents">
+                            <div class="agent-card">
+                                <span class="agent-name">Ollama</span>
+                                <span class="agent-type">Local</span>
+                            </div>
+                            <div class="agent-card">
+                                <span class="agent-name">Gemini</span>
+                                <span class="agent-type">Cloud</span>
+                            </div>
+                            <div class="agent-card">
+                                <span class="agent-name">DeepSeek</span>
+                                <span class="agent-type">Hybrid</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="arch-connector">
+                    <div class="connector-line security-line"></div>
+                    <div class="security-supercell">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Security Supercell</span>
+                        <span class="security-badge">97.6%</span>
+                    </div>
+                    <div class="connector-line security-line"></div>
+                </div>
+                
+                <div class="arch-layer layer-engine">
+                    <div class="layer-header">
+                        <span class="layer-icon cpp-badge">C++</span>
+                        <h3>Performance Engine</h3>
+                    </div>
+                    <div class="layer-content">
+                        <div class="tech-badge">C++17</div>
+                        <div class="tech-badge">CMake</div>
+                        <div class="tech-badge">pybind11</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Key Features -->
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h4>Multi-Agent AI</h4>
+                    <p>Run multiple AI models in parallel for code generation and experimentation</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-code-branch"></i>
+                    </div>
+                    <h4>Cross-Language</h4>
+                    <p>Seamless integration between Python, C++, and C# components</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-dna"></i>
+                    </div>
+                    <h4>Biological Architecture</h4>
+                    <p>Security Supercell with immune system-inspired protection</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-flask"></i>
+                    </div>
+                    <h4>Evolution Lab</h4>
+                    <p>Automated code generation experiments with conversation logs</p>
+                </div>
+            </div>
+            
+            <div class="cta-container">
+                <a href="https://github.com/Tecnocrat/AIOS" class="btn btn-primary btn-large">
+                    <i class="fab fa-github"></i> Explore Repository
+                </a>
             </div>
         </div>
     </section>
 
     <section id="skills" class="skills">
         <div class="container">
-            <h2 class="section-title">Skills & Technologies</h2>
-            <div class="skills-grid">
-                <div class="skill-category">
-                    <h3><i class="fas fa-brain"></i> AI & Machine Learning</h3>
-                    <div class="skill-tags">
-                        <span class="skill-tag">Python</span>
-                        <span class="skill-tag">TensorFlow</span>
-                        <span class="skill-tag">PyTorch</span>
-                        <span class="skill-tag">Ollama</span>
-                        <span class="skill-tag">Gemini API</span>
-                        <span class="skill-tag">DeepSeek</span>
+            <div class="section-header">
+                <span class="section-tag">Technical Expertise</span>
+                <h2 class="section-title">Skills & Technologies</h2>
+            </div>
+            
+            <div class="skills-visualization">
+                <div class="skills-list">
+                    <div class="skill-category">
+                        <h3><i class="fas fa-brain"></i> AI & Machine Learning</h3>
+                        <div class="skill-tags">
+                            <span class="skill-tag">Ollama</span>
+                            <span class="skill-tag">Gemini API</span>
+                            <span class="skill-tag">DeepSeek</span>
+                            <span class="skill-tag">LangChain</span>
+                            <span class="skill-tag">PyTorch</span>
+                        </div>
                     </div>
-                </div>
-                <div class="skill-category">
-                    <h3><i class="fas fa-code"></i> Programming Languages</h3>
-                    <div class="skill-tags">
-                        <span class="skill-tag">Python</span>
-                        <span class="skill-tag">C#</span>
-                        <span class="skill-tag">C++</span>
-                        <span class="skill-tag">JavaScript</span>
-                        <span class="skill-tag">TypeScript</span>
+                    <div class="skill-category">
+                        <h3><i class="fas fa-code"></i> Programming Languages</h3>
+                        <div class="skill-tags">
+                            <span class="skill-tag">Python 3.12+</span>
+                            <span class="skill-tag">C# .NET 8</span>
+                            <span class="skill-tag">C++17</span>
+                            <span class="skill-tag">JavaScript</span>
+                            <span class="skill-tag">Hydrolang</span>
+                        </div>
                     </div>
-                </div>
-                <div class="skill-category">
-                    <h3><i class="fas fa-server"></i> Backend & Infrastructure</h3>
-                    <div class="skill-tags">
-                        <span class="skill-tag">Docker</span>
-                        <span class="skill-tag">Kubernetes</span>
-                        <span class="skill-tag">Azure</span>
-                        <span class="skill-tag">FastAPI</span>
-                        <span class="skill-tag">Node.js</span>
-                    </div>
-                </div>
-                <div class="skill-category">
-                    <h3><i class="fas fa-tools"></i> Tools & Platforms</h3>
-                    <div class="skill-tags">
-                        <span class="skill-tag">Git</span>
-                        <span class="skill-tag">VS Code</span>
-                        <span class="skill-tag">GitHub Actions</span>
-                        <span class="skill-tag">CMake</span>
-                        <span class="skill-tag">.NET</span>
+                    <div class="skill-category">
+                        <h3><i class="fas fa-server"></i> Infrastructure</h3>
+                        <div class="skill-tags">
+                            <span class="skill-tag">Docker</span>
+                            <span class="skill-tag">Azure</span>
+                            <span class="skill-tag">GitHub Actions</span>
+                            <span class="skill-tag">CMake</span>
+                            <span class="skill-tag">FastAPI</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -138,89 +306,73 @@
 
     <section id="projects" class="projects">
         <div class="container">
-            <h2 class="section-title">Featured Projects</h2>
-            <div class="projects-grid">
-                <div class="project-card">
-                    <div class="project-image">
-                        <img src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=400&h=250&fit=crop" alt="AIOS Project">
-                    </div>
-                    <div class="project-content">
-                        <h3>AIOS - Artificial Intelligence Operative System</h3>
-                        <p>A multi-language development platform for AI-assisted code generation and experimentation with multi-agent coordination.</p>
-                        <div class="project-tech">
-                            <span>Python</span>
-                            <span>C++</span>
-                            <span>C#</span>
-                            <span>Docker</span>
-                        </div>
-                        <div class="project-links">
-                            <a href="https://github.com/Tecnocrat/AIOS" class="project-link"><i class="fab fa-github"></i> Code</a>
-                            <a href="#contact" class="project-link"><i class="fas fa-external-link-alt"></i> Demo</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="project-card">
-                    <div class="project-image">
-                        <img src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=250&fit=crop" alt="Dev Tools">
-                    </div>
-                    <div class="project-content">
-                        <h3>Developer Utility Tools</h3>
-                        <p>A collection of practical CLI tools for Python environment management, Docker setup, and repository indexing.</p>
-                        <div class="project-tech">
-                            <span>Python</span>
-                            <span>CLI</span>
-                            <span>Automation</span>
-                        </div>
-                        <div class="project-links">
-                            <a href="https://github.com/Tecnocrat" class="project-link"><i class="fab fa-github"></i> Code</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="project-card">
-                    <div class="project-image">
-                        <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=250&fit=crop" alt="Research">
-                    </div>
-                    <div class="project-content">
-                        <h3>AINLP & Hydrolang Research</h3>
-                        <p>Advanced natural language processing frameworks and a programming language for fluid AI interactions.</p>
-                        <div class="project-tech">
-                            <span>Research</span>
-                            <span>AI</span>
-                            <span>Language Design</span>
-                        </div>
-                        <div class="project-links">
-                            <a href="https://github.com/Tecnocrat/AIOS/tree/main/docs/AINLP" class="project-link"><i class="fab fa-github"></i> Code</a>
-                        </div>
-                    </div>
-                </div>
+            <div class="section-header">
+                <span class="section-tag">Portfolio</span>
+                <h2 class="section-title">Featured Projects</h2>
             </div>
-        </div>
-    </section>
-
-    <section id="experience" class="experience">
-        <div class="container">
-            <h2 class="section-title">Experience & Education</h2>
-            <div class="timeline">
-                <div class="timeline-item">
-                    <div class="timeline-content">
-                        <h3>AI Engineer & Developer</h3>
-                        <span class="timeline-date">2023 - Present</span>
-                        <p>Developing AIOS platform and exploring agentic AI systems. Building practical dev tools and conducting research in AI consciousness.</p>
+            
+            <div class="projects-grid">
+                <div class="project-card featured">
+                    <div class="project-badge">Featured</div>
+                    <div class="project-header">
+                        <span class="project-icon">⚛</span>
+                        <h3>AIOS</h3>
                     </div>
+                    <p>Artificial Intelligence Operative System - A multi-language platform for AI-assisted code generation with biological architecture.</p>
+                    <div class="project-tech">
+                        <span>Python</span>
+                        <span>C++</span>
+                        <span>C#</span>
+                    </div>
+                    <div class="project-stats">
+                        <div class="stat">
+                            <span class="stat-value">40+</span>
+                            <span class="stat-label">Tools</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">97.6%</span>
+                            <span class="stat-label">Security</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">3</span>
+                            <span class="stat-label">AI Agents</span>
+                        </div>
+                    </div>
+                    <a href="https://github.com/Tecnocrat/AIOS" class="project-link">
+                        <i class="fab fa-github"></i> View Repository
+                    </a>
                 </div>
-                <div class="timeline-item">
-                    <div class="timeline-content">
-                        <h3>Software Developer</h3>
-                        <span class="timeline-date">2020 - 2023</span>
-                        <p>Full-stack development with focus on Python, C#, and cloud technologies. Experience with Azure and containerization.</p>
+                
+                <div class="project-card">
+                    <div class="project-header">
+                        <span class="project-icon">🧠</span>
+                        <h3>AINLP</h3>
                     </div>
+                    <p>Advanced Natural Language Processing frameworks for fluid AI interactions and code generation from natural language.</p>
+                    <div class="project-tech">
+                        <span>Python</span>
+                        <span>NLP</span>
+                        <span>Research</span>
+                    </div>
+                    <a href="https://github.com/Tecnocrat/AIOS/tree/main/docs/AINLP" class="project-link">
+                        <i class="fab fa-github"></i> View Docs
+                    </a>
                 </div>
-                <div class="timeline-item">
-                    <div class="timeline-content">
-                        <h3>Computer Science Studies</h3>
-                        <span class="timeline-date">2018 - 2020</span>
-                        <p>Bachelor's in Computer Science with emphasis on AI, algorithms, and software engineering principles.</p>
+                
+                <div class="project-card">
+                    <div class="project-header">
+                        <span class="project-icon">💧</span>
+                        <h3>Hydrolang</h3>
                     </div>
+                    <p>A programming language for fluid AI interactions using mathematical notation and consciousness-inspired constructs.</p>
+                    <div class="project-tech">
+                        <span>Language Design</span>
+                        <span>AI</span>
+                        <span>Research</span>
+                    </div>
+                    <a href="https://github.com/Tecnocrat/AIOS/tree/main/docs/AINLP/hydrolang" class="project-link">
+                        <i class="fab fa-github"></i> View Docs
+                    </a>
                 </div>
             </div>
         </div>
@@ -228,56 +380,45 @@
 
     <section id="contact" class="contact">
         <div class="container">
-            <h2 class="section-title">Get In Touch</h2>
-            <div class="contact-content">
-                <div class="contact-info">
-                    <div class="contact-item">
-                        <i class="fas fa-envelope"></i>
-                        <div>
-                            <h4>Email</h4>
-                            <p>jesussard@gmail.com</p>
-                        </div>
-                    </div>
-                    <div class="contact-item">
-                        <i class="fab fa-linkedin"></i>
-                        <div>
-                            <h4>LinkedIn</h4>
-                            <p><a href="https://www.linkedin.com/in/jesussard/">linkedin.com/in/jesussard</a></p>
-                        </div>
-                    </div>
-                    <div class="contact-item">
-                        <i class="fab fa-github"></i>
-                        <div>
-                            <h4>GitHub</h4>
-                            <p><a href="https://github.com/Tecnocrat">github.com/Tecnocrat</a></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="contact-form">
-                    <form id="contactForm">
-                        <div class="form-group">
-                            <input type="text" id="name" name="name" placeholder="Your Name" required>
-                        </div>
-                        <div class="form-group">
-                            <input type="email" id="email" name="email" placeholder="Your Email" required>
-                        </div>
-                        <div class="form-group">
-                            <textarea id="message" name="message" placeholder="Your Message" rows="5" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Send Message</button>
-                    </form>
-                </div>
+            <div class="section-header">
+                <span class="section-tag">Let's Connect</span>
+                <h2 class="section-title">Get In Touch</h2>
+                <p class="section-subtitle">Open to collaborations on AI systems, dev tools, and innovative projects</p>
+            </div>
+            
+            <div class="contact-grid">
+                <a href="mailto:jesussard@gmail.com" class="contact-card">
+                    <i class="fas fa-envelope"></i>
+                    <h4>Email</h4>
+                    <p>jesussard@gmail.com</p>
+                </a>
+                <a href="https://www.linkedin.com/in/jesussard/" class="contact-card">
+                    <i class="fab fa-linkedin"></i>
+                    <h4>LinkedIn</h4>
+                    <p>linkedin.com/in/jesussard</p>
+                </a>
+                <a href="https://github.com/Tecnocrat" class="contact-card">
+                    <i class="fab fa-github"></i>
+                    <h4>GitHub</h4>
+                    <p>github.com/Tecnocrat</p>
+                </a>
             </div>
         </div>
     </section>
 
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2025 Jesus Sard Gonzalez. All rights reserved.</p>
-            <div class="social-links">
-                <a href="https://github.com/Tecnocrat"><i class="fab fa-github"></i></a>
-                <a href="https://www.linkedin.com/in/jesussard/"><i class="fab fa-linkedin"></i></a>
-                <a href="mailto:jesussard@gmail.com"><i class="fas fa-envelope"></i></a>
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <span class="logo-symbol">⚛</span>
+                    <span>Tecnocrat</span>
+                </div>
+                <p>&copy; 2025 Jesus Sard Gonzalez. Building the future of AI.</p>
+                <div class="social-links">
+                    <a href="https://github.com/Tecnocrat"><i class="fab fa-github"></i></a>
+                    <a href="https://www.linkedin.com/in/jesussard/"><i class="fab fa-linkedin"></i></a>
+                    <a href="mailto:jesussard@gmail.com"><i class="fas fa-envelope"></i></a>
+                </div>
             </div>
         </div>
     </footer>
