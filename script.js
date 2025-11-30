@@ -1,9 +1,13 @@
 // ========================================
 // AIOS-THEMED PORTFOLIO SCRIPTS
 // Neural network animations and interactions
+// Integrated with Tecnocrat Intelligence Layer
 // ========================================
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Tecnocrat surface data
+    initSurfaceData();
+    
     // Initialize all components
     initParticles();
     initNeuralCanvas();
@@ -13,6 +17,61 @@ document.addEventListener('DOMContentLoaded', function() {
     initScrollAnimations();
     initInteractiveCube();  // Interactive 3D cube
 });
+
+// ========================================
+// TECNOCRAT SURFACE INTEGRATION
+// Connects Portfolio to intelligence layer
+// ========================================
+function initSurfaceData() {
+    const versionElement = document.getElementById('surface-version');
+    const syncDot = document.querySelector('.sync-dot');
+    
+    if (typeof TecnocratSurface === 'undefined') {
+        console.warn('TecnocratSurface not loaded');
+        if (versionElement) versionElement.textContent = 'offline';
+        if (syncDot) syncDot.classList.add('disconnected');
+        return;
+    }
+    
+    // Update sync indicator
+    if (versionElement) {
+        versionElement.textContent = TecnocratSurface.metadata.version;
+    }
+    
+    console.log(`📡 Tecnocrat Surface v${TecnocratSurface.metadata.version}`);
+    console.log(`   Last sync: ${TecnocratSurface.metadata.lastSync}`);
+    console.log(`   Source: ${TecnocratSurface.metadata.sourceManifest}`);
+    
+    // Inject dynamic stats from surface data
+    updateStatsFromSurface();
+    
+    // Log exposed knowledge for debugging
+    const publicItems = TecnocratSurface.getByLevel('L0_PUBLIC');
+    const techItems = TecnocratSurface.getByLevel('L2_TECHNICAL');
+    console.log(`   Public items: ${publicItems.length}`);
+    console.log(`   Technical items: ${techItems.length}`);
+}
+
+function updateStatsFromSurface() {
+    if (typeof TecnocratSurface === 'undefined') return;
+    
+    const stats = TecnocratSurface.stats;
+    
+    // Update any stat elements that exist
+    const statMappings = {
+        'stat-commits': stats.aiosCommits,
+        'stat-security': stats.securityScore + '%',
+        'stat-tools': stats.diagnosticTools,
+        'stat-agents': stats.aiAgents
+    };
+    
+    for (const [id, value] of Object.entries(statMappings)) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = value;
+        }
+    }
+}
 
 // ========================================
 // PARTICLE SYSTEM
@@ -131,12 +190,14 @@ function initNeuralCanvas() {
 
 // ========================================
 // TYPING ANIMATION
+// Uses Tecnocrat surface data when available
 // ========================================
 function initTypingAnimation() {
     const typingElement = document.getElementById('typing-text');
     if (!typingElement) return;
     
-    const phrases = [
+    // Base phrases (fallback)
+    let phrases = [
         'init AIOS.core()',
         'loading multi_agent_system...',
         'Φ(consciousness) → ∞',
@@ -144,6 +205,25 @@ function initTypingAnimation() {
         'observer.watch(∃₀→∃ₙ)',
         'security_supercell.activate()'
     ];
+    
+    // Enhance with surface data if available
+    if (typeof TecnocratSurface !== 'undefined') {
+        const hydrolang = TecnocratSurface.surface.hydrolang;
+        const security = TecnocratSurface.surface.security;
+        const runtime = TecnocratSurface.surface.runtime;
+        
+        // Add dynamic phrases from exposed surface
+        phrases = [
+            'init AIOS.core()',
+            `runtime_tools: ${TecnocratSurface.stats.diagnosticTools}`,
+            'Φ(consciousness) → ∞',
+            `security: ${TecnocratSurface.stats.securityScore}%`,
+            'observer.watch(∃₀→∃ₙ)',
+            `agents: [${TecnocratSurface.surface.evolution.exposed[0].displayContent.agents.join(', ')}]`,
+            'bridge.connect(reality)',
+            'tecnocrat.surface.sync()'
+        ];
+    }
     
     let phraseIndex = 0;
     let charIndex = 0;
