@@ -1090,17 +1090,35 @@ section {
     border-color: var(--accent);
 }
 
+.surface-sync.connected {
+    border-color: rgba(0, 245, 212, 0.3);
+}
+
+.surface-sync.error {
+    border-color: rgba(247, 37, 133, 0.3);
+}
+
 .sync-dot {
     width: 6px;
     height: 6px;
-    background: var(--accent);
+    background: var(--text-muted);
     border-radius: 50%;
+    animation: pulse-connecting 1s infinite;
+}
+
+.surface-sync.connected .sync-dot {
+    background: var(--accent);
     animation: pulse-sync 2s infinite;
 }
 
-.sync-dot.disconnected {
+.surface-sync.error .sync-dot {
     background: var(--accent-alt);
     animation: none;
+}
+
+@keyframes pulse-connecting {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
 }
 
 @keyframes pulse-sync {

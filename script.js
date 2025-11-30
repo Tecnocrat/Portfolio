@@ -20,36 +20,105 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ========================================
 // TECNOCRAT SURFACE INTEGRATION
-// Connects Portfolio to intelligence layer
+// Live connection to Tecnocrat intelligence layer
+// Fetches from GitHub raw content (no server needed)
 // ========================================
-function initSurfaceData() {
-    const versionElement = document.getElementById('surface-version');
+
+const SURFACE_CONFIG = {
+    // Live manifest URL from Tecnocrat repo
+    manifestUrl: 'https://raw.githubusercontent.com/Tecnocrat/Tecnocrat/main/docs/tecnocrat/intelligence/manifests/exposed_surface.yaml',
+    // Fallback to local surface.js data
+    useFallback: true,
+    // Cache duration in milliseconds (5 minutes)
+    cacheDuration: 5 * 60 * 1000
+};
+
+async function initSurfaceData() {
+    const syncIndicator = document.getElementById('surface-sync');
     const syncDot = document.querySelector('.sync-dot');
+    const syncText = document.querySelector('.sync-text');
     
-    if (typeof TecnocratSurface === 'undefined') {
-        console.warn('TecnocratSurface not loaded');
-        if (versionElement) versionElement.textContent = 'offline';
-        if (syncDot) syncDot.classList.add('disconnected');
+    // Try to fetch live data from GitHub
+    try {
+        console.log('📡 Fetching live surface data from Tecnocrat repo...');
+        const liveData = await fetchLiveSurface();
+        
+        if (liveData && liveData.version) {
+            // Update UI with live connection
+            if (syncIndicator) syncIndicator.classList.add('connected');
+            if (syncText) syncText.textContent = `Live · v${liveData.version}`;
+            
+            console.log('✅ Live surface connected');
+            console.log(`   Version: ${liveData.version}`);
+            console.log(`   Curator: ${liveData.curator}`);
+            console.log(`   Last updated: ${liveData.last_updated}`);
+            
+            // Store for other functions to use
+            window.TecnocratLive = liveData;
+            return;
+        }
+    } catch (error) {
+        console.warn('⚠️ Live fetch failed, using fallback:', error.message);
+    }
+    
+    // Fallback to local TecnocratSurface
+    if (typeof TecnocratSurface !== 'undefined' && SURFACE_CONFIG.useFallback) {
+        if (syncIndicator) syncIndicator.classList.add('connected');
+        if (syncText) syncText.textContent = `Cached · v${TecnocratSurface.metadata.version}`;
+        
+        console.log(`📦 Using cached Surface v${TecnocratSurface.metadata.version}`);
+        updateStatsFromSurface();
+        window.TecnocratLive = TecnocratSurface.metadata;
         return;
     }
     
-    // Update sync indicator
-    if (versionElement) {
-        versionElement.textContent = TecnocratSurface.metadata.version;
+    // No data available
+    if (syncIndicator) syncIndicator.classList.add('error');
+    if (syncText) syncText.textContent = 'Offline';
+    console.warn('❌ Surface data unavailable');
+}
+
+async function fetchLiveSurface() {
+    const response = await fetch(SURFACE_CONFIG.manifestUrl, {
+        cache: 'no-cache',
+        headers: { 'Accept': 'text/plain' }
+    });
+    
+    if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
     }
     
-    console.log(`📡 Tecnocrat Surface v${TecnocratSurface.metadata.version}`);
-    console.log(`   Last sync: ${TecnocratSurface.metadata.lastSync}`);
-    console.log(`   Source: ${TecnocratSurface.metadata.sourceManifest}`);
+    const yamlText = await response.text();
     
-    // Inject dynamic stats from surface data
-    updateStatsFromSurface();
+    // Parse YAML (simple parser for our manifest structure)
+    const parsed = parseSimpleYaml(yamlText);
+    return parsed;
+}
+
+// Simple YAML parser for our specific manifest format
+function parseSimpleYaml(yaml) {
+    const result = {};
+    const lines = yaml.split('\n');
     
-    // Log exposed knowledge for debugging
-    const publicItems = TecnocratSurface.getByLevel('L0_PUBLIC');
-    const techItems = TecnocratSurface.getByLevel('L2_TECHNICAL');
-    console.log(`   Public items: ${publicItems.length}`);
-    console.log(`   Technical items: ${techItems.length}`);
+    for (const line of lines) {
+        // Extract version
+        if (line.trim().startsWith('version:')) {
+            result.version = line.split(':')[1].trim().replace(/['"]/g, '');
+        }
+        // Extract last_updated
+        if (line.trim().startsWith('last_updated:')) {
+            result.last_updated = line.split(':').slice(1).join(':').trim().replace(/['"]/g, '');
+        }
+        // Extract curator
+        if (line.trim().startsWith('curator:')) {
+            result.curator = line.split(':')[1].trim().replace(/['"]/g, '');
+        }
+    }
+    
+    result.raw = yaml;
+    result.fetchedAt = new Date().toISOString();
+    
+    return result;
 }
 
 function updateStatsFromSurface() {
