@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initSmoothScroll();
     initNavbar();
     initScrollAnimations();
+    initInteractiveCube();  // Interactive 3D cube
 });
 
 // ========================================
@@ -468,9 +469,6 @@ function initInteractiveCube() {
     
     console.log('Interactive cube initialized');
 }
-
-// Initialize cube when DOM is ready
-document.addEventListener('DOMContentLoaded', initInteractiveCube);
 
 // ========================================
 // HYDROLANG CODE BLOCK HOVER EFFECT
