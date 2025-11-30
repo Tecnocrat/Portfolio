@@ -147,11 +147,14 @@ body {
 
 /* Logo Symbol with Hover Animation */
 .logo-symbol {
-    font-size: 1.5rem;
+    font-size: 2rem;
     display: inline-block;
     color: #667eea;
     transition: all 0.3s ease;
     cursor: pointer;
+    text-shadow: 
+        0 0 8px rgba(102, 126, 234, 0.6),
+        0 0 15px rgba(102, 126, 234, 0.4);
 }
 
 .nav-logo:hover .logo-symbol,
@@ -159,10 +162,9 @@ body {
     animation: atomSpin 0.8s ease-in-out infinite;
     color: #00f5d4;
     text-shadow: 
-        0 0 5px #00f5d4,
-        0 0 10px #00f5d4,
-        0 0 20px #667eea,
-        0 0 30px #667eea;
+        0 0 10px rgba(0, 245, 212, 0.8),
+        0 0 20px rgba(0, 245, 212, 0.6),
+        0 0 30px rgba(102, 126, 234, 0.5);
 }
 
 @keyframes atomSpin {
@@ -1064,6 +1066,11 @@ section {
     font-size: 1.3rem;
     font-weight: 700;
     cursor: pointer;
+    transition: var(--transition);
+}
+
+.footer-logo:hover {
+    color: var(--accent);
 }
 
 .footer p {
