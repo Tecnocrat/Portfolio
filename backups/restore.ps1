@@ -1,10 +1,16 @@
 # Portfolio Restore Utility
-# Usage: .\restore.ps1 -Backup "2025-11-30_160509"
+# Usage: .\backups\restore.ps1 -Backup "2025-11-30_160509"
+# Run from Portfolio root folder
 
 param(
     [Parameter(Mandatory=$true)]
     [string]$Backup
 )
+
+# Ensure we're in Portfolio root
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$portfolioRoot = Split-Path -Parent $scriptDir
+Set-Location $portfolioRoot
 
 $backupPath = "backups/$Backup"
 

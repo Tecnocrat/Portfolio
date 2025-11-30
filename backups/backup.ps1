@@ -1,9 +1,15 @@
 # Portfolio Backup Utility
-# Usage: .\backup.ps1 [-Name "optional_label"]
+# Usage: .\backups\backup.ps1 [-Name "optional_label"]
+# Run from Portfolio root folder
 
 param(
     [string]$Name = ""
 )
+
+# Ensure we're in Portfolio root
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$portfolioRoot = Split-Path -Parent $scriptDir
+Set-Location $portfolioRoot
 
 $timestamp = Get-Date -Format "yyyy-MM-dd_HHmmss"
 $backupName = if ($Name) { "${timestamp}_$Name" } else { $timestamp }
