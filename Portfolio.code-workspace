@@ -2,6 +2,14 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"path": "../Tecnocrat/media",
+			"name": "📁 Shared Media (Tecnocrat)"
+		},
+		{
+			"path": "../Tecnocrat",
+			"name": "📂 Tecnocrat Profile (Reference)"
 		}
 	],
 	"settings": {
