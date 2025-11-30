@@ -334,7 +334,8 @@ function initScrollAnimations() {
 // ========================================
 function initInteractiveCube() {
     const cube = document.querySelector('.cube');
-    if (!cube) return;
+    const cubeContainer = document.querySelector('.cube-container');
+    if (!cube || !cubeContainer) return;
     
     let isDragging = false;
     let previousMouseX = 0;
@@ -343,10 +344,13 @@ function initInteractiveCube() {
     let rotationY = 0;
     let velocityX = 0;
     let velocityY = 0.5;  // Initial spin speed (matches CSS animation)
-    let animationId = null;
     
     // Disable CSS animation - we'll handle it with JS
     cube.style.animation = 'none';
+    
+    // Make container interactive
+    cubeContainer.style.cursor = 'grab';
+    cubeContainer.style.userSelect = 'none';
     
     function updateCube() {
         cube.style.transform = `rotateX(${rotationX}deg) rotateY(${rotationY}deg)`;
@@ -360,22 +364,18 @@ function initInteractiveCube() {
             
             // Gentle friction to slow down X rotation (tilt)
             velocityX *= 0.98;
-            
-            // Keep Y spinning continuously (very slow friction)
-            // velocityY stays mostly constant for perpetual spin
         }
         
         updateCube();
-        animationId = requestAnimationFrame(animate);
+        requestAnimationFrame(animate);
     }
     
     function onMouseDown(e) {
-        if (window.innerWidth <= 992) return;
-        
+        e.preventDefault();
         isDragging = true;
         previousMouseX = e.clientX;
         previousMouseY = e.clientY;
-        cube.style.cursor = 'grabbing';
+        cubeContainer.style.cursor = 'grabbing';
         
         // Stop any residual velocity on grab
         velocityX = 0;
@@ -407,7 +407,7 @@ function initInteractiveCube() {
         if (!isDragging) return;
         
         isDragging = false;
-        cube.style.cursor = 'grab';
+        cubeContainer.style.cursor = 'grab';
         
         // Ensure minimum spin velocity when released
         if (Math.abs(velocityY) < 0.3) {
@@ -418,6 +418,7 @@ function initInteractiveCube() {
     // Touch support for mobile
     function onTouchStart(e) {
         if (e.touches.length === 1) {
+            e.preventDefault();
             isDragging = true;
             previousMouseX = e.touches[0].clientX;
             previousMouseY = e.touches[0].clientY;
@@ -452,21 +453,20 @@ function initInteractiveCube() {
         }
     }
     
-    // Set initial cursor
-    cube.style.cursor = 'grab';
-    
-    // Mouse events
-    cube.addEventListener('mousedown', onMouseDown);
+    // Mouse events - attach to container for better hit detection
+    cubeContainer.addEventListener('mousedown', onMouseDown);
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
     
     // Touch events
-    cube.addEventListener('touchstart', onTouchStart, { passive: false });
-    cube.addEventListener('touchmove', onTouchMove, { passive: false });
-    cube.addEventListener('touchend', onTouchEnd);
+    cubeContainer.addEventListener('touchstart', onTouchStart, { passive: false });
+    cubeContainer.addEventListener('touchmove', onTouchMove, { passive: false });
+    cubeContainer.addEventListener('touchend', onTouchEnd);
     
     // Start animation loop
     animate();
+    
+    console.log('Interactive cube initialized');
 }
 
 // Initialize cube when DOM is ready
