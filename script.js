@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initNavbar();
     initScrollAnimations();
     initInteractiveCube();  // Interactive 3D cube
+    initCodeStack();        // 3D Code Stack - AIOS layers
 });
 
 // ========================================
@@ -476,6 +477,174 @@ function initScrollAnimations() {
         }
     `;
     document.head.appendChild(style);
+}
+
+// ========================================
+// 3D CODE STACK - Living Abstraction Layers
+// Scroll/click to navigate, returns to idle breathing
+// ========================================
+function initCodeStack() {
+    const container = document.getElementById('code-stack');
+    if (!container) return;
+    
+    const cards = container.querySelectorAll('.stack-card');
+    const dots = container.querySelectorAll('.stack-dot');
+    const upBtn = document.getElementById('stack-up');
+    const downBtn = document.getElementById('stack-down');
+    const hint = container.querySelector('.stack-hint');
+    
+    let currentIndex = 0;
+    let isAnimating = false;
+    let idleTimeout = null;
+    let lastInteraction = Date.now();
+    
+    // Initialize stack positions
+    updateStack(0, 'none');
+    
+    // Navigation functions
+    function goToCard(index, direction = 'none') {
+        if (isAnimating || index === currentIndex) return;
+        if (index < 0 || index >= cards.length) return;
+        
+        isAnimating = true;
+        lastInteraction = Date.now();
+        
+        // Hide hint after first interaction
+        if (hint) hint.style.display = 'none';
+        
+        currentIndex = index;
+        updateStack(index, direction);
+        
+        setTimeout(() => {
+            isAnimating = false;
+        }, 500);
+    }
+    
+    function updateStack(activeIndex, direction) {
+        cards.forEach((card, i) => {
+            // Remove all position classes
+            card.classList.remove('active', 'behind-1', 'behind-2', 'behind-3', 'behind-4', 'entering-up', 'entering-down');
+            
+            if (i === activeIndex) {
+                card.classList.add('active');
+                if (direction === 'up') card.classList.add('entering-up');
+                if (direction === 'down') card.classList.add('entering-down');
+            } else {
+                // Calculate distance from active
+                const distance = i - activeIndex;
+                if (distance > 0 && distance <= 4) {
+                    card.classList.add(`behind-${distance}`);
+                } else if (distance < 0) {
+                    // Cards above active go far back
+                    card.classList.add('behind-4');
+                }
+            }
+        });
+        
+        // Update dots
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === activeIndex);
+        });
+        
+        // Update button states
+        if (upBtn) upBtn.disabled = activeIndex === 0;
+        if (downBtn) downBtn.disabled = activeIndex === cards.length - 1;
+    }
+    
+    // Arrow button clicks
+    if (upBtn) {
+        upBtn.addEventListener('click', () => goToCard(currentIndex - 1, 'up'));
+    }
+    if (downBtn) {
+        downBtn.addEventListener('click', () => goToCard(currentIndex + 1, 'down'));
+    }
+    
+    // Dot clicks
+    dots.forEach((dot, i) => {
+        dot.addEventListener('click', () => {
+            const direction = i < currentIndex ? 'up' : 'down';
+            goToCard(i, direction);
+        });
+    });
+    
+    // Mouse wheel navigation
+    container.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        
+        if (isAnimating) return;
+        
+        if (e.deltaY > 0) {
+            goToCard(currentIndex + 1, 'down');
+        } else {
+            goToCard(currentIndex - 1, 'up');
+        }
+    }, { passive: false });
+    
+    // Keyboard navigation when focused
+    container.setAttribute('tabindex', '0');
+    container.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+            e.preventDefault();
+            goToCard(currentIndex - 1, 'up');
+        } else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+            e.preventDefault();
+            goToCard(currentIndex + 1, 'down');
+        }
+    });
+    
+    // Click on cards to select (visible edges)
+    cards.forEach((card, i) => {
+        card.addEventListener('click', () => {
+            if (i !== currentIndex) {
+                const direction = i < currentIndex ? 'up' : 'down';
+                goToCard(i, direction);
+            }
+        });
+    });
+    
+    // Reactive behavior: stack subtly follows cursor
+    container.addEventListener('mousemove', (e) => {
+        if (isAnimating) return;
+        
+        const rect = container.getBoundingClientRect();
+        const x = (e.clientX - rect.left - rect.width / 2) / rect.width;
+        const y = (e.clientY - rect.top - rect.height / 2) / rect.height;
+        
+        // Subtle tilt toward cursor - the stack notices you
+        const stack = container.querySelector('.code-stack');
+        if (stack) {
+            stack.style.transform = `rotateY(${x * 5}deg) rotateX(${-y * 3}deg)`;
+        }
+    });
+    
+    // Return to neutral when mouse leaves - volition
+    container.addEventListener('mouseleave', () => {
+        const stack = container.querySelector('.code-stack');
+        if (stack) {
+            stack.style.transform = 'rotateY(0) rotateX(0)';
+        }
+    });
+    
+    // Touch support for mobile
+    let touchStartY = 0;
+    container.addEventListener('touchstart', (e) => {
+        touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+    
+    container.addEventListener('touchend', (e) => {
+        const touchEndY = e.changedTouches[0].clientY;
+        const diff = touchStartY - touchEndY;
+        
+        if (Math.abs(diff) > 50) {
+            if (diff > 0) {
+                goToCard(currentIndex + 1, 'down');
+            } else {
+                goToCard(currentIndex - 1, 'up');
+            }
+        }
+    }, { passive: true });
+    
+    console.log('📚 Code Stack initialized - 5 abstraction layers ready');
 }
 
 // ========================================

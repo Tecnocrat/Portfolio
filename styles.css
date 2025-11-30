@@ -376,6 +376,220 @@ body {
 .code-content .type { color: #4ec9b0; }
 .code-content .symbol { color: #c586c0; }
 .code-content .function { color: #dcdcaa; }
+.code-content .accent { color: var(--accent); }
+
+/* ========================================
+   3D CODE STACK - Living Abstraction Layers
+   ======================================== */
+
+.code-stack-container {
+    position: relative;
+    perspective: 1000px;
+    margin-bottom: 32px;
+    padding: 20px 0;
+}
+
+.code-stack {
+    position: relative;
+    height: 260px;
+    transform-style: preserve-3d;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Individual Cards */
+.stack-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-card);
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    transform-origin: center bottom;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Stacking positions - cards behind */
+.stack-card[data-index="0"] { z-index: 5; }
+.stack-card[data-index="1"] { z-index: 4; }
+.stack-card[data-index="2"] { z-index: 3; }
+.stack-card[data-index="3"] { z-index: 2; }
+.stack-card[data-index="4"] { z-index: 1; }
+
+/* Default stacked state - all cards visible behind */
+.stack-card:not(.active) {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Dynamic positioning based on distance from active */
+.stack-card.behind-1 {
+    transform: translateY(15px) translateZ(-30px) scale(0.96);
+    opacity: 0.7;
+}
+.stack-card.behind-2 {
+    transform: translateY(30px) translateZ(-60px) scale(0.92);
+    opacity: 0.5;
+}
+.stack-card.behind-3 {
+    transform: translateY(45px) translateZ(-90px) scale(0.88);
+    opacity: 0.3;
+}
+.stack-card.behind-4 {
+    transform: translateY(60px) translateZ(-120px) scale(0.84);
+    opacity: 0.15;
+}
+
+/* Active card */
+.stack-card.active {
+    z-index: 10;
+    opacity: 1;
+    transform: translateY(0) translateZ(0) scale(1);
+    box-shadow: var(--glow-primary), 0 10px 40px rgba(0, 0, 0, 0.4);
+    pointer-events: auto;
+    animation: cardBreathe 4s ease-in-out infinite;
+}
+
+/* Breathing animation - the card is alive */
+@keyframes cardBreathe {
+    0%, 100% {
+        box-shadow: var(--glow-primary), 0 10px 40px rgba(0, 0, 0, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(102, 126, 234, 0.6), 0 15px 50px rgba(0, 0, 0, 0.5);
+    }
+}
+
+/* Hover on active card - it notices you */
+.stack-card.active:hover {
+    transform: translateY(-5px) translateZ(10px) scale(1.02);
+    box-shadow: 0 0 40px rgba(0, 245, 212, 0.5), 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* Stack Navigation */
+.stack-nav {
+    position: absolute;
+    right: -50px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.stack-arrow {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(102, 126, 234, 0.2);
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stack-arrow:hover {
+    background: rgba(102, 126, 234, 0.4);
+    color: var(--text-primary);
+    transform: scale(1.1);
+    box-shadow: var(--glow-primary);
+}
+
+.stack-arrow:active {
+    transform: scale(0.95);
+}
+
+.stack-arrow:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.stack-arrow:disabled:hover {
+    transform: none;
+    background: rgba(102, 126, 234, 0.2);
+}
+
+/* Dot indicators */
+.stack-indicators {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.stack-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(102, 126, 234, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.stack-dot:hover {
+    background: rgba(102, 126, 234, 0.6);
+    transform: scale(1.3);
+}
+
+.stack-dot.active {
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+    transform: scale(1.2);
+}
+
+/* Scroll hint */
+.stack-hint {
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+    animation: hintPulse 2s ease-in-out infinite;
+}
+
+.stack-hint:hover {
+    opacity: 1;
+}
+
+@keyframes hintPulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.8; }
+}
+
+/* Card enters from direction */
+.stack-card.entering-up {
+    animation: slideInFromTop 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stack-card.entering-down {
+    animation: slideInFromBottom 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideInFromTop {
+    from {
+        transform: translateY(-100px) translateZ(50px) scale(0.8);
+        opacity: 0;
+    }
+}
+
+@keyframes slideInFromBottom {
+    from {
+        transform: translateY(100px) translateZ(50px) scale(0.8);
+        opacity: 0;
+    }
+}
 
 /* Hero Buttons */
 .hero-buttons {
@@ -1254,6 +1468,24 @@ section {
     .scroll-indicator {
         display: none;
     }
+
+    /* Code Stack mobile adjustments */
+    .code-stack-container {
+        margin: 0 -10px;
+    }
+
+    .stack-nav {
+        right: 5px;
+    }
+
+    .stack-arrow {
+        width: 32px;
+        height: 32px;
+    }
+
+    .stack-hint {
+        font-size: 0.7rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1280,5 +1512,28 @@ section {
 
     .contact-grid {
         grid-template-columns: 1fr;
+    }
+
+    /* Code Stack small screens */
+    .code-stack {
+        height: 240px;
+    }
+
+    .stack-nav {
+        position: relative;
+        right: auto;
+        top: auto;
+        transform: none;
+        flex-direction: row;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .stack-indicators {
+        flex-direction: row;
+    }
+
+    .stack-hint {
+        display: none;
     }
 }
