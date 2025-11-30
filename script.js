@@ -346,8 +346,10 @@ function initInteractiveCube() {
     let velocityX = 0;
     let velocityY = 0.5;  // Initial spin speed
     
-    const DEFAULT_VELOCITY_Y = 0.5;  // Constant rotation speed (left to right)
-    const RETURN_SPEED = 0.02;       // How fast velocity returns to default
+    const DEFAULT_VELOCITY_Y = 0.5;  // Target: constant left-to-right rotation
+    const DEFAULT_ROTATION_X = -20;  // Target: slight downward tilt
+    const VELOCITY_RETURN_SPEED = 0.01;  // How fast velocity returns to default
+    const TILT_RETURN_SPEED = 0.005;     // How fast tilt returns to default
     
     // Disable CSS animation - we'll handle it with JS
     cube.style.animation = 'none';
@@ -366,11 +368,14 @@ function initInteractiveCube() {
             rotationY += velocityY;
             rotationX += velocityX;
             
-            // Gradually return velocityY to default constant rotation
-            velocityY += (DEFAULT_VELOCITY_Y - velocityY) * RETURN_SPEED;
+            // Gradually return Y velocity to constant left-to-right spin
+            velocityY += (DEFAULT_VELOCITY_Y - velocityY) * VELOCITY_RETURN_SPEED;
             
-            // Gradually slow down X velocity (tilt) back to zero
+            // Gradually slow down X velocity
             velocityX *= 0.95;
+            
+            // Gradually return X rotation (tilt) back to default angle
+            rotationX += (DEFAULT_ROTATION_X - rotationX) * TILT_RETURN_SPEED;
         }
         
         updateCube();
