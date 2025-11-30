@@ -329,34 +329,148 @@ function initScrollAnimations() {
 }
 
 // ========================================
-// CUBE INTERACTION (Optional mouse tracking)
+// INTERACTIVE 3D CUBE
+// Drag to rotate, release to continue spinning
 // ========================================
-document.addEventListener('mousemove', (e) => {
+function initInteractiveCube() {
     const cube = document.querySelector('.cube');
     if (!cube) return;
     
-    const centerX = window.innerWidth / 2;
-    const centerY = window.innerHeight / 2;
-    const mouseX = e.clientX - centerX;
-    const mouseY = e.clientY - centerY;
+    let isDragging = false;
+    let previousMouseX = 0;
+    let previousMouseY = 0;
+    let rotationX = -20;  // Initial tilt
+    let rotationY = 0;
+    let velocityX = 0;
+    let velocityY = 0.5;  // Initial spin speed (matches CSS animation)
+    let animationId = null;
     
-    // Subtle rotation based on mouse position
-    const rotateY = (mouseX / centerX) * 10;
-    const rotateX = -(mouseY / centerY) * 10;
+    // Disable CSS animation - we'll handle it with JS
+    cube.style.animation = 'none';
     
-    // Only apply on larger screens
-    if (window.innerWidth > 992) {
-        cube.style.transform = `rotateX(${-20 + rotateX}deg) rotateY(${rotateY}deg)`;
+    function updateCube() {
+        cube.style.transform = `rotateX(${rotationX}deg) rotateY(${rotationY}deg)`;
     }
-});
+    
+    function animate() {
+        if (!isDragging) {
+            // Apply velocity with friction
+            rotationY += velocityY;
+            rotationX += velocityX;
+            
+            // Gentle friction to slow down X rotation (tilt)
+            velocityX *= 0.98;
+            
+            // Keep Y spinning continuously (very slow friction)
+            // velocityY stays mostly constant for perpetual spin
+        }
+        
+        updateCube();
+        animationId = requestAnimationFrame(animate);
+    }
+    
+    function onMouseDown(e) {
+        if (window.innerWidth <= 992) return;
+        
+        isDragging = true;
+        previousMouseX = e.clientX;
+        previousMouseY = e.clientY;
+        cube.style.cursor = 'grabbing';
+        
+        // Stop any residual velocity on grab
+        velocityX = 0;
+        velocityY = 0;
+    }
+    
+    function onMouseMove(e) {
+        if (!isDragging) return;
+        
+        const deltaX = e.clientX - previousMouseX;
+        const deltaY = e.clientY - previousMouseY;
+        
+        // Update rotation based on drag
+        rotationY += deltaX * 0.5;
+        rotationX -= deltaY * 0.3;
+        
+        // Clamp X rotation to prevent flipping
+        rotationX = Math.max(-60, Math.min(60, rotationX));
+        
+        // Track velocity for momentum
+        velocityY = deltaX * 0.1;
+        velocityX = -deltaY * 0.05;
+        
+        previousMouseX = e.clientX;
+        previousMouseY = e.clientY;
+    }
+    
+    function onMouseUp() {
+        if (!isDragging) return;
+        
+        isDragging = false;
+        cube.style.cursor = 'grab';
+        
+        // Ensure minimum spin velocity when released
+        if (Math.abs(velocityY) < 0.3) {
+            velocityY = 0.5; // Resume default spin
+        }
+    }
+    
+    // Touch support for mobile
+    function onTouchStart(e) {
+        if (e.touches.length === 1) {
+            isDragging = true;
+            previousMouseX = e.touches[0].clientX;
+            previousMouseY = e.touches[0].clientY;
+            velocityX = 0;
+            velocityY = 0;
+        }
+    }
+    
+    function onTouchMove(e) {
+        if (!isDragging || e.touches.length !== 1) return;
+        
+        const deltaX = e.touches[0].clientX - previousMouseX;
+        const deltaY = e.touches[0].clientY - previousMouseY;
+        
+        rotationY += deltaX * 0.5;
+        rotationX -= deltaY * 0.3;
+        rotationX = Math.max(-60, Math.min(60, rotationX));
+        
+        velocityY = deltaX * 0.1;
+        velocityX = -deltaY * 0.05;
+        
+        previousMouseX = e.touches[0].clientX;
+        previousMouseY = e.touches[0].clientY;
+        
+        e.preventDefault();
+    }
+    
+    function onTouchEnd() {
+        isDragging = false;
+        if (Math.abs(velocityY) < 0.3) {
+            velocityY = 0.5;
+        }
+    }
+    
+    // Set initial cursor
+    cube.style.cursor = 'grab';
+    
+    // Mouse events
+    cube.addEventListener('mousedown', onMouseDown);
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+    
+    // Touch events
+    cube.addEventListener('touchstart', onTouchStart, { passive: false });
+    cube.addEventListener('touchmove', onTouchMove, { passive: false });
+    cube.addEventListener('touchend', onTouchEnd);
+    
+    // Start animation loop
+    animate();
+}
 
-// Reset cube rotation when mouse leaves
-document.addEventListener('mouseleave', () => {
-    const cube = document.querySelector('.cube');
-    if (cube && window.innerWidth > 992) {
-        cube.style.transform = '';
-    }
-});
+// Initialize cube when DOM is ready
+document.addEventListener('DOMContentLoaded', initInteractiveCube);
 
 // ========================================
 // HYDROLANG CODE BLOCK HOVER EFFECT
