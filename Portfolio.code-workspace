@@ -24,10 +24,10 @@
 	},
 	"extensions": {
 		"recommendations": [
-			"esbenp.prettier-vscode",
-			"ritwickdey.liveserver",
+			"ritwickdey.LiveServer",
 			"dbaeumer.vscode-eslint",
-			"formulahendry.auto-rename-tag"
+			"formulahendry.auto-close-tag",
+			"pranaygp.vscode-css-peek"
 		]
 	},
 	"launch": {
