@@ -145,93 +145,41 @@ body {
     color: var(--text-primary);
 }
 
-/* Logo Symbol Animation */
-.logo-symbol-wrapper {
-    position: relative;
-    display: inline-block;
-    font-size: 1.5rem;
-}
-
+/* Logo Symbol with Hover Animation */
 .logo-symbol {
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-size: 1.5rem;
     display: inline-block;
-    transition: transform 0.3s ease;
+    color: #667eea;
+    transition: all 0.3s ease;
+    cursor: pointer;
 }
 
-.logo-symbol-glow {
-    position: absolute;
-    top: 0;
-    left: 0;
-    background: var(--gradient-accent);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    opacity: 0;
-    filter: blur(2px);
-    transition: opacity 0.3s ease;
-    pointer-events: none;
+.nav-logo:hover .logo-symbol,
+.footer-logo:hover .logo-symbol {
+    animation: atomSpin 0.8s ease-in-out infinite;
+    color: #00f5d4;
+    text-shadow: 
+        0 0 5px #00f5d4,
+        0 0 10px #00f5d4,
+        0 0 20px #667eea,
+        0 0 30px #667eea;
 }
 
-/* Hover Animation */
-.nav-logo:hover .logo-symbol {
-    animation: atomWobble 0.6s ease-in-out infinite;
-}
-
-.nav-logo:hover .logo-symbol-glow {
-    animation: atomPulseGlow 0.6s ease-in-out infinite alternate;
-}
-
-.nav-logo:hover .logo-symbol-wrapper::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 200%;
-    height: 200%;
-    transform: translate(-50%, -50%);
-    background: radial-gradient(circle, rgba(0, 245, 212, 0.3) 0%, transparent 70%);
-    animation: atomRadiance 1s ease-in-out infinite;
-    pointer-events: none;
-    z-index: -1;
-}
-
-@keyframes atomWobble {
-    0%, 100% {
+@keyframes atomSpin {
+    0% {
         transform: rotate(0deg) scale(1);
     }
     25% {
-        transform: rotate(12deg) scale(1.15);
+        transform: rotate(15deg) scale(1.2);
     }
     50% {
-        transform: rotate(0deg) scale(1.05);
+        transform: rotate(0deg) scale(1.1);
     }
     75% {
-        transform: rotate(-12deg) scale(1.15);
-    }
-}
-
-@keyframes atomPulseGlow {
-    0% {
-        opacity: 0;
-        transform: scale(1);
+        transform: rotate(-15deg) scale(1.2);
     }
     100% {
-        opacity: 0.8;
-        transform: scale(1.1);
-    }
-}
-
-@keyframes atomRadiance {
-    0%, 100% {
-        opacity: 0.5;
-        transform: translate(-50%, -50%) scale(0.8);
-    }
-    50% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1.2);
+        transform: rotate(0deg) scale(1);
     }
 }
 
@@ -1115,18 +1063,7 @@ section {
     gap: 8px;
     font-size: 1.3rem;
     font-weight: 700;
-}
-
-.footer-logo .logo-symbol-wrapper {
-    font-size: 1.5rem;
-}
-
-.footer-logo:hover .logo-symbol {
-    animation: atomWobble 0.6s ease-in-out infinite;
-}
-
-.footer-logo:hover .logo-symbol-glow {
-    animation: atomPulseGlow 0.6s ease-in-out infinite alternate;
+    cursor: pointer;
 }
 
 .footer p {
