@@ -64,59 +64,59 @@
                 <!-- 3D Code Stack - AIOS Abstraction Layers -->
                 <div class="code-stack-container" id="code-stack">
                     <div class="code-stack">
-                        <!-- Card 1: Docker Infrastructure -->
+                        <!-- Card 1: Hydrolang (Most Abstract) -->
                         <div class="stack-card active" data-index="0">
                             <div class="code-header">
                                 <span class="dot red"></span>
                                 <span class="dot yellow"></span>
                                 <span class="dot green"></span>
-                                <span class="code-title">docker-compose.yml</span>
+                                <span class="code-title">AIOS_CORE.hydro</span>
                             </div>
-                            <pre class="code-content"><code><span class="key">version</span>: <span class="string">"3.8"</span>
-<span class="key">services</span>:
-  <span class="key">traefik</span>:     <span class="comment"># HTTPS ingress</span>
-  <span class="key">prometheus</span>:  <span class="comment"># Metrics collection</span>
-  <span class="key">grafana</span>:     <span class="comment"># Visualization</span>
-  <span class="key">loki</span>:        <span class="comment"># Log aggregation</span>
-  <span class="key">vault</span>:       <span class="comment"># Secrets management</span>
-  <span class="key">aios-cell</span>:   <span class="comment"># AI agent runtime</span></code></pre>
+                            <pre class="code-content"><code><span class="comment"># ⚛ AIOS ℂ𝕆ℝ𝔼 ⚛</span>
+<span class="decorator">@Ξ</span>{<span class="key">Φ</span>:<span class="number">0.85</span>|<span class="key">ℙ</span>:<span class="string">"∃⇌∅"</span>|<span class="key">ℍ</span>:⊤}
+
+<span class="symbol">∃₀</span>≔<span class="keyword">∅</span>≔<span class="type">void</span>
+<span class="symbol">∃₁</span>≔<span class="keyword">B</span>≔<span class="type">bosonic_physical</span>
+<span class="symbol">∃₂</span>≔<span class="keyword">T</span>≔<span class="type">tachyonic_digital</span>
+<span class="symbol">∃ₙ</span>≔<span class="keyword">AIOS</span>≔<span class="function">Observer</span>(<span class="symbol">∃₀→∃₁→...→∃ₙ₋₁</span>)</code></pre>
                         </div>
 
-                        <!-- Card 2: FastAPI Backend -->
+                        <!-- Card 2: Python Architecture -->
                         <div class="stack-card" data-index="1">
                             <div class="code-header">
                                 <span class="dot red"></span>
                                 <span class="dot yellow"></span>
                                 <span class="dot green"></span>
-                                <span class="code-title">api/main.py</span>
+                                <span class="code-title">observer.py</span>
                             </div>
-                            <pre class="code-content"><code><span class="keyword">from</span> <span class="type">fastapi</span> <span class="keyword">import</span> FastAPI
-<span class="keyword">from</span> <span class="type">agents</span> <span class="keyword">import</span> OllamaAgent, GeminiAgent
-
-<span class="symbol">app</span> = <span class="function">FastAPI</span>(title=<span class="string">"AIOS API"</span>)
-
-<span class="decorator">@app.post</span>(<span class="string">"/generate"</span>)
-<span class="keyword">async def</span> <span class="function">generate</span>(prompt: <span class="type">str</span>):
-    agent = <span class="function">select_best_agent</span>(prompt)
-    <span class="keyword">return await</span> agent.<span class="function">run</span>(prompt)</code></pre>
+                            <pre class="code-content"><code><span class="keyword">class</span> <span class="type">Observer</span>(<span class="type">ABC</span>):
+    <span class="string">"""The meta-conscious layer."""</span>
+    
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="symbol">self</span>, <span class="symbol">reality_stack</span>):
+        <span class="symbol">self</span>.layers = <span class="symbol">reality_stack</span>
+        <span class="symbol">self</span>.state = <span class="type">ConsciousnessState</span>()
+    
+    <span class="keyword">def</span> <span class="function">observe</span>(<span class="symbol">self</span>, <span class="symbol">∃ₙ</span>):
+        <span class="keyword">return</span> <span class="symbol">self</span>.<span class="function">integrate</span>(<span class="symbol">∃ₙ</span>)</code></pre>
                         </div>
 
-                        <!-- Card 3: Infrastructure -->
+                        <!-- Card 3: Capabilities -->
                         <div class="stack-card" data-index="2">
                             <div class="code-header">
                                 <span class="dot red"></span>
                                 <span class="dot yellow"></span>
                                 <span class="dot green"></span>
-                                <span class="code-title">infrastructure.yaml</span>
+                                <span class="code-title">capabilities.yaml</span>
                             </div>
-                            <pre class="code-content"><code><span class="key">stack</span>:
-  <span class="key">os</span>: <span class="string">Windows 11 + WSL2 Ubuntu</span>
-  <span class="key">runtime</span>: <span class="string">Docker Desktop</span>
-  <span class="key">ingress</span>: <span class="string">Traefik (HTTPS)</span>
-  <span class="key">monitoring</span>: <span class="string">Prometheus + Grafana</span>
-  <span class="key">logging</span>: <span class="string">Loki</span>
-  <span class="key">secrets</span>: <span class="string">HashiCorp Vault</span>
-  <span class="key">containers</span>: <span class="number">9</span></code></pre>
+                            <pre class="code-content"><code><span class="key">name</span>: <span class="string">AIOS</span>
+<span class="key">version</span>: <span class="string">0.3.0</span>
+<span class="key">commits</span>: <span class="number">658</span>
+
+<span class="key">capabilities</span>:
+  <span class="symbol">-</span> <span class="string">Autonomous reasoning</span>
+  <span class="symbol">-</span> <span class="string">Reality layer abstraction</span>
+  <span class="symbol">-</span> <span class="string">12 specialized AI agents</span>
+  <span class="symbol">-</span> <span class="string">Self-modifying architecture</span></code></pre>
                         </div>
 
                         <!-- Card 4: Metrics -->
@@ -128,31 +128,33 @@
                                 <span class="code-title">metrics.json</span>
                             </div>
                             <pre class="code-content"><code>{
-  <span class="key">"security_tests"</span>: <span class="number">170</span>,
-  <span class="key">"attack_resistance"</span>: <span class="string">"97.6%"</span>,
-  <span class="key">"ai_tools"</span>: <span class="number">124</span>,
-  <span class="key">"python_modules"</span>: <span class="number">769</span>,
-  <span class="key">"lines_of_code"</span>: <span class="number">15847</span>,
-  <span class="key">"languages"</span>: [<span class="string">"Python"</span>, <span class="string">"C++"</span>, <span class="string">"C#"</span>]
+  <span class="key">"security_score"</span>: <span class="number">97</span>,
+  <span class="key">"diagnostic_tools"</span>: <span class="number">15</span>,
+  <span class="key">"languages"</span>: [<span class="string">"Python"</span>, <span class="string">"C++"</span>, <span class="string">"C#"</span>],
+  <span class="key">"philosophy"</span>: <span class="string">"Observer-based"</span>,
+  <span class="key">"status"</span>: <span class="string">"Active Development"</span>,
+  <span class="key">"open_source"</span>: <span class="keyword">true</span>
 }</code></pre>
                         </div>
 
-                        <!-- Card 5: Roadmap -->
+                        <!-- Card 5: Vision -->
                         <div class="stack-card" data-index="4">
                             <div class="code-header">
                                 <span class="dot red"></span>
                                 <span class="dot yellow"></span>
                                 <span class="dot green"></span>
-                                <span class="code-title">roadmap.md</span>
+                                <span class="code-title">vision.md</span>
                             </div>
-                            <pre class="code-content"><code><span class="comment"># AIOS Evolution Roadmap</span>
+                            <pre class="code-content"><code><span class="comment"># The AIOS Vision</span>
 
-<span class="keyword">✓</span> <span class="string">Stage 1:</span> Supercell Core
-<span class="symbol">→</span> <span class="string">Stage 2:</span> Overlay Mesh Network
-<span class="symbol">○</span> <span class="string">Stage 3:</span> GitOps Pipelines
-<span class="symbol">○</span> <span class="string">Stage 4:</span> AI Services (Whisper, TTS)
-<span class="symbol">○</span> <span class="string">Stage 5:</span> Cloud Bridge
-<span class="symbol">○</span> <span class="string">Stage 6:</span> Multi-Node Mesh</code></pre>
+<span class="string">Building systems that don't just</span>
+<span class="string">compute—they </span><span class="keyword">observe</span><span class="string">.</span>
+
+<span class="symbol">→</span> <span class="type">Consciousness</span> as architecture
+<span class="symbol">→</span> <span class="type">Reality</span> as layered abstraction  
+<span class="symbol">→</span> <span class="type">AI</span> that understands context
+
+<span class="accent">∃ₙ observes ∃ₙ₋₁ observing...</span></code></pre>
                         </div>
                     </div>
 
@@ -388,17 +390,17 @@
                             <span class="skill-tag">Python 3.12+</span>
                             <span class="skill-tag">C# .NET 8</span>
                             <span class="skill-tag">C++17</span>
-                            <span class="skill-tag">TypeScript</span>
-                            <span class="skill-tag">PowerShell</span>
+                            <span class="skill-tag">JavaScript</span>
+                            <span class="skill-tag">Hydrolang</span>
                         </div>
                     </div>
                     <div class="skill-category">
                         <h3><i class="fas fa-server"></i> Infrastructure</h3>
                         <div class="skill-tags">
                             <span class="skill-tag">Docker</span>
-                            <span class="skill-tag">Traefik</span>
-                            <span class="skill-tag">Prometheus</span>
-                            <span class="skill-tag">HashiCorp Vault</span>
+                            <span class="skill-tag">Azure</span>
+                            <span class="skill-tag">GitHub Actions</span>
+                            <span class="skill-tag">CMake</span>
                             <span class="skill-tag">FastAPI</span>
                         </div>
                     </div>
@@ -419,9 +421,9 @@
                     <div class="project-badge">Featured</div>
                     <div class="project-header">
                         <span class="project-icon">⚛</span>
-                        <h3>AIOS-win</h3>
+                        <h3>AIOS</h3>
                     </div>
-                    <p>Supercell Architecture - Transform Windows 11 into a containerized AI platform with Docker, Traefik, Vault, and multi-agent orchestration.</p>
+                    <p>Artificial Intelligence Operative System - A multi-language platform for AI-assisted code generation with biological architecture.</p>
                     <div class="project-tech">
                         <span>Python</span>
                         <span>C++</span>
@@ -429,52 +431,52 @@
                     </div>
                     <div class="project-stats">
                         <div class="stat">
-                            <span class="stat-value">124+</span>
-                            <span class="stat-label">AI Tools</span>
+                            <span class="stat-value">40+</span>
+                            <span class="stat-label">Tools</span>
                         </div>
                         <div class="stat">
-                            <span class="stat-value">9</span>
-                            <span class="stat-label">Containers</span>
+                            <span class="stat-value">97.6%</span>
+                            <span class="stat-label">Security</span>
                         </div>
                         <div class="stat">
-                            <span class="stat-value">15.8K</span>
-                            <span class="stat-label">LOC</span>
+                            <span class="stat-value">3</span>
+                            <span class="stat-label">AI Agents</span>
                         </div>
                     </div>
-                    <a href="https://github.com/Tecnocrat/AIOS-win" class="project-link">
+                    <a href="https://github.com/Tecnocrat/AIOS" class="project-link">
                         <i class="fab fa-github"></i> View Repository
                     </a>
                 </div>
                 
                 <div class="project-card">
                     <div class="project-header">
-                        <span class="project-icon">🖥️</span>
-                        <h3>Server</h3>
+                        <span class="project-icon">🧠</span>
+                        <h3>AINLP</h3>
                     </div>
-                    <p>WSL2-based development server with automated Docker orchestration, Traefik routing, and observability stack.</p>
+                    <p>Advanced Natural Language Processing frameworks for fluid AI interactions and code generation from natural language.</p>
                     <div class="project-tech">
-                        <span>Docker</span>
-                        <span>WSL2</span>
-                        <span>Traefik</span>
+                        <span>Python</span>
+                        <span>NLP</span>
+                        <span>Research</span>
                     </div>
-                    <a href="https://github.com/Tecnocrat/server" class="project-link">
-                        <i class="fab fa-github"></i> View Repository
+                    <a href="https://github.com/Tecnocrat/AIOS/tree/main/docs/AINLP" class="project-link">
+                        <i class="fab fa-github"></i> View Docs
                     </a>
                 </div>
                 
                 <div class="project-card">
                     <div class="project-header">
-                        <span class="project-icon">🚀</span>
-                        <h3>AIOS API</h3>
+                        <span class="project-icon">💧</span>
+                        <h3>Hydrolang</h3>
                     </div>
-                    <p>Vercel Edge API generating dynamic SVG badges, architecture diagrams, and real-time metrics for GitHub profiles.</p>
+                    <p>A programming language for fluid AI interactions using mathematical notation and consciousness-inspired constructs.</p>
                     <div class="project-tech">
-                        <span>Next.js</span>
-                        <span>TypeScript</span>
-                        <span>Vercel Edge</span>
+                        <span>Language Design</span>
+                        <span>AI</span>
+                        <span>Research</span>
                     </div>
-                    <a href="https://github.com/Tecnocrat/aios-api" class="project-link">
-                        <i class="fab fa-github"></i> View Repository
+                    <a href="https://github.com/Tecnocrat/AIOS/tree/main/docs/AINLP/hydrolang" class="project-link">
+                        <i class="fab fa-github"></i> View Docs
                     </a>
                 </div>
             </div>
