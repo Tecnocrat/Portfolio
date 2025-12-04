@@ -6,16 +6,19 @@
  * is publicly visible on this Portfolio.
  * 
  * Source: docs/tecnocrat/intelligence/manifests/exposed_surface.yaml
- * Version: 1.0.0
- * Last Sync: 2025-11-30
+ * Version: 2.0.0
+ * Last Sync: 2025-12-04
+ * 
+ * Architecture: Supercell - Transform Windows 11 into a self-aware, agentic supercell
  */
 
 const TecnocratSurface = {
     metadata: {
-        version: "1.0.0",
-        lastSync: "2025-11-30",
+        version: "2.0.0",
+        lastSync: "2025-12-04",
         curator: "Tecnocrat",
-        sourceManifest: "exposed_surface.yaml"
+        sourceManifest: "exposed_surface.yaml",
+        apiEndpoint: "https://tecnocrat-api.vercel.app/api"
     },
 
     // Exposure Levels (from manifest)
@@ -27,32 +30,32 @@ const TecnocratSurface = {
 
     // Knowledge Surface - What's exposed on this Portfolio
     surface: {
-        hydrolang: {
-            name: "Hydrolang",
+        // SUPERCELL ARCHITECTURE (replaces Hydrolang)
+        supercell: {
+            name: "Supercell Architecture",
             exposed: [
                 {
-                    id: "core_concepts",
-                    name: "Core Concepts",
+                    id: "core_concept",
+                    name: "Core Concept",
                     level: "L2_TECHNICAL",
-                    description: "N-Layer Reality Stack, Observer Abstraction, Hydrogen Principle",
+                    description: "Transform Windows 11 into a containerized AI-driven operating environment",
                     displayContent: {
-                        title: "N-Layer Reality Stack",
-                        symbols: ["∃₀", "∃₁", "∃₂", "∃ₙ"],
-                        summary: "A formal notation for consciousness emergence across reality layers"
+                        title: "Supercell Architecture",
+                        tagline: "Windows 11 as a self-aware, agentic supercell",
+                        layers: ["Nucleus (Core)", "Membrane (Security)", "Organelles (Containers)", "Cytoplasm (Runtime)"]
                     }
                 },
                 {
-                    id: "symbolic_notation",
-                    name: "Symbolic Notation",
+                    id: "cell_types",
+                    name: "Cell Types",
                     level: "L2_TECHNICAL",
-                    description: "∃, ⇌, ⟲ and other Hydrolang symbols",
+                    description: "Specialized container types in the Supercell architecture",
                     displayContent: {
-                        symbols: [
-                            { symbol: "∃", meaning: "Existence layer" },
-                            { symbol: "⇌", meaning: "Bidirectional bridge" },
-                            { symbol: "⟲", meaning: "Recursive pattern" },
-                            { symbol: "∅", meaning: "Void / Empty" },
-                            { symbol: "⊗", meaning: "Tensor product" }
+                        cells: [
+                            { type: "Nucleus", role: "Core orchestration & state management", icon: "⚛" },
+                            { type: "Membrane", role: "Security boundary & validation", icon: "🛡" },
+                            { type: "Ribosome", role: "Code generation & synthesis", icon: "🧬" },
+                            { type: "Mitochondria", role: "Resource management & energy", icon: "⚡" }
                         ]
                     }
                 },
@@ -60,17 +63,18 @@ const TecnocratSurface = {
                     id: "philosophy",
                     name: "Philosophy",
                     level: "L1_PROFESSIONAL",
-                    description: "High-level consciousness research direction",
+                    description: "Biological-inspired AI system design",
                     displayContent: {
-                        tagline: "Minimal structure, maximal emergence",
-                        principle: "The Hydrogen Principle: simplicity enables complexity"
+                        tagline: "Living systems architecture for AI",
+                        principle: "Cells that compute, membranes that protect, evolution that adapts"
                     }
                 }
             ]
         },
 
+        // SECURITY SUPERCELL
         security: {
-            name: "Security Supercell",
+            name: "Security Membrane",
             exposed: [
                 {
                     id: "architecture_patterns",
@@ -79,8 +83,8 @@ const TecnocratSurface = {
                     description: "Digital immune system design, membrane validation",
                     displayContent: {
                         concept: "Digital Immune System",
-                        patterns: ["Membrane Validation", "Coherence Enforcement", "Immune Memory"],
-                        testsPassed: "166/170",
+                        patterns: ["Membrane Validation", "Coherence Enforcement", "Immune Memory", "Attack Resistance"],
+                        testsPassed: "170/170",
                         securityScore: "97.6%"
                     }
                 },
@@ -90,12 +94,14 @@ const TecnocratSurface = {
                     level: "L1_PROFESSIONAL",
                     description: "Security-first AI development approach",
                     displayContent: {
-                        tagline: "Biological-inspired security for AI systems"
+                        tagline: "Biological-inspired security for AI systems",
+                        features: ["HashiCorp Vault integration", "Traefik reverse proxy", "Container isolation"]
                     }
                 }
             ]
         },
 
+        // EVOLUTION LAB
         evolution: {
             name: "Evolution Lab",
             exposed: [
@@ -105,8 +111,9 @@ const TecnocratSurface = {
                     level: "L2_TECHNICAL",
                     description: "Multi-agent code generation results",
                     displayContent: {
-                        agents: ["Ollama", "Gemini", "DeepSeek"],
-                        capability: "Parallel code generation and comparison"
+                        agents: ["Ollama (local)", "Gemini", "DeepSeek", "Claude", "GPT-4"],
+                        capability: "Parallel code generation and cross-validation",
+                        tools: 124
                     }
                 },
                 {
@@ -115,24 +122,36 @@ const TecnocratSurface = {
                     level: "L1_PROFESSIONAL",
                     description: "AI-assisted development approach",
                     displayContent: {
-                        approach: "Human-guided AI experimentation",
-                        outputs: ["Generated code", "Conversation logs", "Evolution history"]
+                        approach: "Human-guided AI experimentation with evolution tracking",
+                        outputs: ["Generated code", "Conversation logs", "Evolution history", "Neural chains"]
                     }
                 }
             ]
         },
 
+        // RUNTIME INTELLIGENCE
         runtime: {
             name: "Runtime Intelligence",
             exposed: [
                 {
                     id: "tool_count",
-                    name: "Tool Count",
+                    name: "AI Tools",
                     level: "L0_PUBLIC",
-                    description: "43 diagnostic tools",
+                    description: "124 integrated AI tools",
                     displayContent: {
-                        count: 43,
-                        label: "Diagnostic Tools"
+                        count: 124,
+                        label: "AI Tools",
+                        growth: "+81 since last sync"
+                    }
+                },
+                {
+                    id: "containers",
+                    name: "Container Fleet",
+                    level: "L1_PROFESSIONAL",
+                    description: "9 specialized Docker containers",
+                    displayContent: {
+                        count: 9,
+                        services: ["Ollama", "ChromaDB", "Traefik", "Vault", "Prometheus", "Grafana", "PostgreSQL", "Redis", "Nginx"]
                     }
                 },
                 {
@@ -141,12 +160,42 @@ const TecnocratSurface = {
                     level: "L1_PROFESSIONAL",
                     description: "Monitoring, diagnostics, optimization",
                     displayContent: {
-                        features: ["System health checks", "Performance monitoring", "Architecture validation"]
+                        features: ["System health checks", "Performance monitoring", "Architecture validation", "Self-healing"]
                     }
                 }
             ]
         },
 
+        // INFRASTRUCTURE
+        infrastructure: {
+            name: "Infrastructure Layer",
+            exposed: [
+                {
+                    id: "docker_compose",
+                    name: "Container Orchestration",
+                    level: "L2_TECHNICAL",
+                    description: "Docker Compose multi-service stack",
+                    displayContent: {
+                        services: 9,
+                        networks: ["aios-network"],
+                        volumes: ["persistent state", "model cache", "secrets"]
+                    }
+                },
+                {
+                    id: "observability",
+                    name: "Observability Stack",
+                    level: "L2_TECHNICAL",
+                    description: "Full observability with Prometheus + Grafana",
+                    displayContent: {
+                        metrics: "Prometheus",
+                        visualization: "Grafana",
+                        logging: "Structured JSON"
+                    }
+                }
+            ]
+        },
+
+        // TECHNOLOGY STACK
         stack: {
             name: "Technology Stack",
             exposed: [
@@ -157,9 +206,10 @@ const TecnocratSurface = {
                     description: "Python 3.12+, C++17, C# .NET 8.0",
                     displayContent: {
                         languages: [
-                            { name: "Python", version: "3.12+", role: "AI Core", icon: "fab fa-python" },
+                            { name: "Python", version: "3.12+", role: "AI Core & Orchestration", icon: "fab fa-python" },
                             { name: "C++", version: "17", role: "Performance Engine", icon: "cpp-icon" },
-                            { name: "C#", version: ".NET 8.0", role: "User Interface", icon: "csharp-icon" }
+                            { name: "C#", version: ".NET 8.0", role: "Desktop Interface", icon: "csharp-icon" },
+                            { name: "TypeScript", version: "5.x", role: "API & Web", icon: "fab fa-js" }
                         ]
                     }
                 },
@@ -169,21 +219,24 @@ const TecnocratSurface = {
                     level: "L2_TECHNICAL",
                     description: "Multi-language coordination via HTTP API",
                     displayContent: {
-                        pattern: "Interface Bridge",
+                        pattern: "Supercell Interface Bridge",
                         port: 8000,
-                        protocol: "HTTP/REST"
+                        protocol: "HTTP/REST + WebSocket"
                     }
                 }
             ]
         }
     },
 
-    // Statistics for display
+    // Statistics for display (synced with aios-api config.ts)
     stats: {
-        aiosCommits: 658,
+        aiTools: 124,
+        containers: 9,
+        linesOfCode: 15800,
+        testsPassed: 170,
+        pythonModules: 47,
         securityScore: 97.6,
-        diagnosticTools: 43,
-        aiAgents: 3
+        aiAgents: 5
     },
 
     // Helper: Get all exposed items by level
@@ -209,6 +262,20 @@ const TecnocratSurface = {
         const category = this.surface[categoryId];
         if (!category) return false;
         return category.exposed.some(item => item.id === itemId);
+    },
+
+    // Helper: Fetch live stats from API (async)
+    async fetchLiveStats() {
+        try {
+            const response = await fetch(`${this.metadata.apiEndpoint}/stats`);
+            if (response.ok) {
+                const data = await response.json();
+                return data.metrics || this.stats;
+            }
+        } catch (e) {
+            console.warn('Failed to fetch live stats, using cached values');
+        }
+        return this.stats;
     }
 };
 

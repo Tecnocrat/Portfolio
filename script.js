@@ -21,12 +21,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ========================================
 // TECNOCRAT SURFACE INTEGRATION
-// Live connection to Tecnocrat intelligence layer
-// Fetches from GitHub raw content (no server needed)
+// Live connection to Tecnocrat API
+// Primary: tecnocrat-api.vercel.app/api
+// Fallback: GitHub raw + local surface.js
 // ========================================
 
 const SURFACE_CONFIG = {
-    // Live manifest URL from Tecnocrat repo
+    // Primary: Live API endpoints
+    apiBase: 'https://tecnocrat-api.vercel.app/api',
+    surfaceUrl: 'https://tecnocrat-api.vercel.app/api/surface',
+    statsUrl: 'https://tecnocrat-api.vercel.app/api/stats',
+    genomeUrl: 'https://tecnocrat-api.vercel.app/api/genome',
+    // Fallback: Raw manifest from GitHub
     manifestUrl: 'https://raw.githubusercontent.com/Tecnocrat/Tecnocrat/main/docs/tecnocrat/intelligence/manifests/exposed_surface.yaml',
     // Fallback to local surface.js data
     useFallback: true,
@@ -39,30 +45,56 @@ async function initSurfaceData() {
     const syncDot = document.querySelector('.sync-dot');
     const syncText = document.querySelector('.sync-text');
     
-    // Try to fetch live data from GitHub
+    // Try primary API first
     try {
-        console.log('📡 Fetching live surface data from Tecnocrat repo...');
+        console.log('🚀 Connecting to Tecnocrat API...');
+        const [surfaceData, statsData] = await Promise.all([
+            fetchFromApi(SURFACE_CONFIG.surfaceUrl),
+            fetchFromApi(SURFACE_CONFIG.statsUrl)
+        ]);
+        
+        if (surfaceData && surfaceData.metadata) {
+            // Update UI with live connection
+            if (syncIndicator) syncIndicator.classList.add('connected');
+            if (syncText) syncText.textContent = `Live API · v${surfaceData.metadata.version}`;
+            
+            console.log('✅ Tecnocrat API connected');
+            console.log(`   Version: ${surfaceData.metadata.version}`);
+            console.log(`   Stats: ${statsData?.metrics?.aiTools || 'N/A'} AI tools`);
+            
+            // Store for other functions to use
+            window.TecnocratLive = {
+                ...surfaceData.metadata,
+                surface: surfaceData.surface,
+                stats: statsData?.metrics || surfaceData.stats
+            };
+            
+            // Update page stats
+            updateStatsFromApi(statsData?.metrics || surfaceData.stats);
+            return;
+        }
+    } catch (error) {
+        console.warn('⚠️ API fetch failed, trying GitHub fallback:', error.message);
+    }
+    
+    // Fallback: Try GitHub raw manifest
+    try {
+        console.log('📡 Fetching from GitHub raw...');
         const liveData = await fetchLiveSurface();
         
         if (liveData && liveData.version) {
-            // Update UI with live connection
             if (syncIndicator) syncIndicator.classList.add('connected');
-            if (syncText) syncText.textContent = `Live · v${liveData.version}`;
+            if (syncText) syncText.textContent = `GitHub · v${liveData.version}`;
             
-            console.log('✅ Live surface connected');
-            console.log(`   Version: ${liveData.version}`);
-            console.log(`   Curator: ${liveData.curator}`);
-            console.log(`   Last updated: ${liveData.last_updated}`);
-            
-            // Store for other functions to use
+            console.log('✅ GitHub surface connected');
             window.TecnocratLive = liveData;
             return;
         }
     } catch (error) {
-        console.warn('⚠️ Live fetch failed, using fallback:', error.message);
+        console.warn('⚠️ GitHub fetch failed, using local fallback:', error.message);
     }
     
-    // Fallback to local TecnocratSurface
+    // Final fallback: local TecnocratSurface
     if (typeof TecnocratSurface !== 'undefined' && SURFACE_CONFIG.useFallback) {
         if (syncIndicator) syncIndicator.classList.add('connected');
         if (syncText) syncText.textContent = `Cached · v${TecnocratSurface.metadata.version}`;
@@ -77,6 +109,19 @@ async function initSurfaceData() {
     if (syncIndicator) syncIndicator.classList.add('error');
     if (syncText) syncText.textContent = 'Offline';
     console.warn('❌ Surface data unavailable');
+}
+
+async function fetchFromApi(url) {
+    const response = await fetch(url, {
+        cache: 'no-cache',
+        headers: { 'Accept': 'application/json' }
+    });
+    
+    if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+    }
+    
+    return response.json();
 }
 
 async function fetchLiveSurface() {
@@ -127,12 +172,13 @@ function updateStatsFromSurface() {
     
     const stats = TecnocratSurface.stats;
     
-    // Update any stat elements that exist
+    // Update any stat elements that exist (new v2.0 format)
     const statMappings = {
-        'stat-commits': stats.aiosCommits,
-        'stat-security': stats.securityScore + '%',
-        'stat-tools': stats.diagnosticTools,
-        'stat-agents': stats.aiAgents
+        'stat-tools': stats.aiTools || stats.diagnosticTools,
+        'stat-security': (stats.securityScore || 97.6) + '%',
+        'stat-containers': stats.containers || 9,
+        'stat-agents': stats.aiAgents || 5,
+        'stat-loc': Math.round((stats.linesOfCode || 15800) / 1000) + 'K'
     };
     
     for (const [id, value] of Object.entries(statMappings)) {
@@ -141,6 +187,29 @@ function updateStatsFromSurface() {
             element.textContent = value;
         }
     }
+}
+
+// Update stats from live API response
+function updateStatsFromApi(metrics) {
+    if (!metrics) return;
+    
+    const statMappings = {
+        'stat-tools': metrics.aiTools,
+        'stat-security': metrics.attackResistance + '%',
+        'stat-containers': metrics.containers,
+        'stat-tests': metrics.securityTests,
+        'stat-loc': Math.round(metrics.linesOfCode / 1000) + 'K',
+        'stat-modules': metrics.pythonModules
+    };
+    
+    for (const [id, value] of Object.entries(statMappings)) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = value;
+        }
+    }
+    
+    console.log('📊 Stats updated from live API');
 }
 
 // ========================================
