@@ -1476,6 +1476,169 @@ section {
 }
 
 /* ========================================
+   ORGANISM AWARENESS
+   The site breathes. It notices. It lives.
+   ======================================== */
+
+/* Architecture layer breathing — subtle border glow pulse */
+@keyframes organism-breathe {
+    0%, 100% {
+        box-shadow: 0 0 5px rgba(102, 126, 234, 0.08);
+        border-color: rgba(102, 126, 234, 0.2);
+    }
+    50% {
+        box-shadow: 0 0 18px rgba(102, 126, 234, 0.22);
+        border-color: rgba(102, 126, 234, 0.38);
+    }
+}
+
+/* Security supercell heartbeat — double-pulse like a biological heart */
+@keyframes organism-heartbeat {
+    0%, 100% {
+        box-shadow: 0 0 5px rgba(247, 37, 133, 0.12);
+        border-color: rgba(247, 37, 133, 0.3);
+    }
+    22% {
+        box-shadow: 0 0 22px rgba(247, 37, 133, 0.35);
+        border-color: rgba(247, 37, 133, 0.55);
+    }
+    34% {
+        box-shadow: 0 0 8px rgba(247, 37, 133, 0.18);
+        border-color: rgba(247, 37, 133, 0.35);
+    }
+    46% {
+        box-shadow: 0 0 16px rgba(247, 37, 133, 0.28);
+        border-color: rgba(247, 37, 133, 0.48);
+    }
+}
+
+/* Tech badge subtle glow wave */
+@keyframes organism-tag-pulse {
+    0%, 100% {
+        border-color: rgba(102, 126, 234, 0.3);
+        box-shadow: none;
+    }
+    50% {
+        border-color: rgba(102, 126, 234, 0.5);
+        box-shadow: 0 0 8px rgba(102, 126, 234, 0.15);
+    }
+}
+
+/* Sync dot steady pulse */
+@keyframes organism-sync-pulse {
+    0%, 100% {
+        box-shadow: 0 0 4px currentColor;
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 0 10px currentColor;
+        transform: scale(1.3);
+    }
+}
+
+/* Apply breathing to architecture layers */
+.organism-breathing {
+    animation: organism-breathe 4.5s ease-in-out infinite;
+}
+
+/* Security supercell overrides with heartbeat */
+.security-supercell.organism-breathing {
+    animation: organism-heartbeat 3.2s ease-in-out infinite;
+}
+
+/* Tech badges wave animation */
+.organism-tag-breathing {
+    animation: organism-tag-pulse 5s ease-in-out infinite;
+}
+
+/* Sync dot pulse */
+.organism-pulse {
+    animation: organism-sync-pulse 2.5s ease-in-out infinite;
+}
+
+/* Feature and project cards — organism-aware transforms */
+.feature-card,
+.project-card {
+    transform-style: preserve-3d;
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                box-shadow 0.3s ease,
+                border-color 0.3s ease,
+                background 0.4s ease;
+}
+
+/* Contact cards awareness */
+.contact-card {
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                box-shadow 0.3s ease,
+                border-color 0.3s ease;
+}
+
+/* Particle awareness — smooth transitions for glow/size */
+.particle {
+    transition: opacity 0.4s ease,
+                box-shadow 0.4s ease,
+                width 0.3s ease,
+                height 0.3s ease;
+}
+
+/* ========================================
+   ORGANISM SLEEP STATE
+   The site rests when unobserved
+   ======================================== */
+.organism-sleeping #neural-canvas {
+    opacity: 0.08 !important;
+    transition: opacity 3s ease;
+}
+
+.organism-sleeping .particles {
+    opacity: 0.15;
+    transition: opacity 3s ease;
+}
+
+.organism-sleeping .organism-breathing {
+    animation-duration: 9s;
+}
+
+.organism-sleeping .security-supercell.organism-breathing {
+    animation-duration: 7s;
+}
+
+.organism-sleeping .organism-tag-breathing {
+    animation-duration: 10s;
+}
+
+.organism-sleeping .feature-card,
+.organism-sleeping .project-card,
+.organism-sleeping .arch-layer,
+.organism-sleeping .security-supercell {
+    border-color: rgba(102, 126, 234, 0.1);
+}
+
+/* ========================================
+   ORGANISM WAKE STATE
+   The site stirs when the observer returns
+   ======================================== */
+.organism-waking #neural-canvas {
+    opacity: 0.5 !important;
+    transition: opacity 0.3s ease;
+}
+
+.organism-waking .particles {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.organism-waking .organism-breathing {
+    animation-duration: 2s;
+}
+
+.organism-waking .feature-card,
+.organism-waking .project-card {
+    border-color: rgba(102, 126, 234, 0.5);
+    transition: border-color 0.3s ease;
+}
+
+/* ========================================
    RESPONSIVE DESIGN
    ======================================== */
 @media (max-width: 992px) {

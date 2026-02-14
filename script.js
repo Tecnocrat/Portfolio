@@ -4,7 +4,124 @@
 // Integrated with Tecnocrat Intelligence Layer
 // ========================================
 
+// ========================================
+// ORGANISM AWARENESS CORE
+// The site is alive. It notices. It breathes.
+// Every element has: resting state, responsiveness,
+// recovery, and awareness of the observer.
+// ========================================
+const Organism = {
+    mouse: { x: window.innerWidth / 2, y: window.innerHeight / 2 },
+    prevMouse: { x: window.innerWidth / 2, y: window.innerHeight / 2 },
+    mouseVelocity: 0,
+    scroll: { y: 0, velocity: 0 },
+    prevScroll: 0,
+    idleTime: 0,
+    sleeping: false,
+    waking: false,
+    visible: true,
+    lastActivity: Date.now(),
+    particles: [],
+    IDLE_THRESHOLD: 5000,
+    SLEEP_THRESHOLD: 10000,
+
+    init() {
+        // Mouse tracking — the organism watches the observer
+        document.addEventListener('mousemove', (e) => {
+            this.prevMouse.x = this.mouse.x;
+            this.prevMouse.y = this.mouse.y;
+            this.mouse.x = e.clientX;
+            this.mouse.y = e.clientY;
+            this.lastActivity = Date.now();
+            this.wake();
+        });
+
+        // Touch tracking
+        document.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 0) {
+                this.mouse.x = e.touches[0].clientX;
+                this.mouse.y = e.touches[0].clientY;
+                this.lastActivity = Date.now();
+                this.wake();
+            }
+        }, { passive: true });
+
+        // Scroll tracking
+        window.addEventListener('scroll', () => {
+            this.lastActivity = Date.now();
+            this.wake();
+        });
+
+        // Any interaction wakes the organism
+        document.addEventListener('click', () => { this.lastActivity = Date.now(); this.wake(); });
+        document.addEventListener('keydown', () => { this.lastActivity = Date.now(); this.wake(); });
+
+        // Tab visibility — organism sleeps when unobserved
+        document.addEventListener('visibilitychange', () => {
+            this.visible = !document.hidden;
+            if (document.hidden) {
+                this.sleep();
+            } else {
+                this.lastActivity = Date.now();
+                this.wake();
+            }
+        });
+
+        // Start organism loop
+        this._update();
+        console.log('🧬 Organism awareness initialized');
+    },
+
+    _update() {
+        const now = Date.now();
+        this.idleTime = now - this.lastActivity;
+
+        // Mouse velocity
+        const dx = this.mouse.x - this.prevMouse.x;
+        const dy = this.mouse.y - this.prevMouse.y;
+        this.mouseVelocity = Math.sqrt(dx * dx + dy * dy);
+
+        // Scroll velocity
+        this.scroll.velocity = window.scrollY - this.prevScroll;
+        this.prevScroll = window.scrollY;
+        this.scroll.y = window.scrollY;
+
+        // Idle → sleep transition
+        if (this.idleTime > this.SLEEP_THRESHOLD && !this.sleeping) {
+            this.sleep();
+        }
+
+        requestAnimationFrame(() => this._update());
+    },
+
+    sleep() {
+        if (this.sleeping) return;
+        this.sleeping = true;
+        document.body.classList.add('organism-sleeping');
+        document.body.classList.remove('organism-waking');
+        console.log('💤 Organism entering sleep state');
+    },
+
+    wake() {
+        if (!this.sleeping) return;
+        this.sleeping = false;
+        this.waking = true;
+        document.body.classList.remove('organism-sleeping');
+        document.body.classList.add('organism-waking');
+        console.log('⚡ Organism waking');
+
+        // Wake pulse duration
+        setTimeout(() => {
+            this.waking = false;
+            document.body.classList.remove('organism-waking');
+        }, 800);
+    }
+};
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize organism awareness — central nervous system
+    Organism.init();
+
     // Initialize Tecnocrat surface data
     initSurfaceData();
     
@@ -17,6 +134,9 @@ document.addEventListener('DOMContentLoaded', function() {
     initScrollAnimations();
     initInteractiveCube();  // Interactive 3D cube
     initCodeStack();        // 3D Code Stack - AIOS layers
+
+    // Initialize organism-wide behaviors (last — needs DOM ready)
+    initOrganismBehaviors();
 });
 
 // ========================================
@@ -220,8 +340,45 @@ function initParticles() {
     const particleCount = 50;
     
     for (let i = 0; i < particleCount; i++) {
-        createParticle(particleContainer);
+        const particle = createParticle(particleContainer);
+        Organism.particles.push({
+            el: particle,
+            color: particle.style.background,
+            baseOpacity: parseFloat(particle.style.opacity)
+        });
     }
+    
+    // Particle awareness loop — particles notice the cursor
+    function updateParticleAwareness() {
+        Organism.particles.forEach(p => {
+            const rect = p.el.getBoundingClientRect();
+            const px = rect.left + rect.width / 2;
+            const py = rect.top + rect.height / 2;
+            
+            const dx = Organism.mouse.x - px;
+            const dy = Organism.mouse.y - py;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const radius = 180;
+            
+            if (dist < radius) {
+                const intensity = 1 - dist / radius;
+                p.el.style.opacity = p.baseOpacity + intensity * 0.6;
+                p.el.style.boxShadow = `0 0 ${intensity * 25 + 5}px ${p.color}`;
+                p.el.style.width = `${4 + intensity * 6}px`;
+                p.el.style.height = `${4 + intensity * 6}px`;
+            } else {
+                // Return to resting state
+                p.el.style.opacity = '';
+                p.el.style.boxShadow = '';
+                p.el.style.width = '';
+                p.el.style.height = '';
+            }
+        });
+        
+        requestAnimationFrame(updateParticleAwareness);
+    }
+    
+    updateParticleAwareness();
 }
 
 function createParticle(container) {
@@ -240,6 +397,7 @@ function createParticle(container) {
     particle.style.boxShadow = `0 0 ${Math.random() * 10 + 5}px ${particle.style.background}`;
     
     container.appendChild(particle);
+    return particle;
 }
 
 // ========================================
@@ -277,10 +435,7 @@ function initNeuralCanvas() {
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // Draw connections
-        ctx.strokeStyle = 'rgba(102, 126, 234, 0.15)';
-        ctx.lineWidth = 1;
-        
+        // Draw connections — synapses fire near consciousness (cursor)
         for (let i = 0; i < nodes.length; i++) {
             for (let j = i + 1; j < nodes.length; j++) {
                 const dx = nodes[i].x - nodes[j].x;
@@ -288,26 +443,68 @@ function initNeuralCanvas() {
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 
                 if (distance < 150) {
+                    // Connection midpoint proximity to cursor
+                    const midX = (nodes[i].x + nodes[j].x) / 2;
+                    const midY = (nodes[i].y + nodes[j].y) / 2;
+                    const cursorDist = Math.sqrt(
+                        (Organism.mouse.x - midX) ** 2 +
+                        (Organism.mouse.y - midY) ** 2
+                    );
+                    const cursorInfluence = Math.max(0, 1 - cursorDist / 280);
+                    
+                    // Near cursor: accent glow, thicker lines
+                    if (cursorInfluence > 0.2) {
+                        ctx.strokeStyle = `rgba(0, 245, 212, ${0.1 + cursorInfluence * 0.45})`;
+                        ctx.lineWidth = 1 + cursorInfluence * 2;
+                    } else {
+                        ctx.strokeStyle = 'rgba(102, 126, 234, 0.15)';
+                        ctx.lineWidth = 1;
+                    }
+                    
                     ctx.beginPath();
                     ctx.moveTo(nodes[i].x, nodes[i].y);
                     ctx.lineTo(nodes[j].x, nodes[j].y);
-                    ctx.globalAlpha = 1 - distance / 150;
+                    ctx.globalAlpha = (1 - distance / 150) * (1 + cursorInfluence * 0.5);
                     ctx.stroke();
                 }
             }
         }
         
-        // Draw nodes
+        // Draw nodes — they notice the observer
         ctx.globalAlpha = 1;
         nodes.forEach(node => {
+            // Node proximity to cursor — glow when noticed
+            const nodeToCursor = Math.sqrt(
+                (Organism.mouse.x - node.x) ** 2 +
+                (Organism.mouse.y - node.y) ** 2
+            );
+            const nodeGlow = Math.max(0, 1 - nodeToCursor / 280);
+            
             ctx.beginPath();
-            ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
-            ctx.fillStyle = '#667eea';
+            ctx.arc(node.x, node.y, node.radius + nodeGlow * 3, 0, Math.PI * 2);
+            ctx.fillStyle = nodeGlow > 0.2
+                ? `rgba(0, 245, 212, ${0.5 + nodeGlow * 0.5})`
+                : '#667eea';
             ctx.fill();
             
             // Update position
             node.x += node.vx;
             node.y += node.vy;
+            
+            // Organism: gravitational pull toward cursor
+            const cursorDx = Organism.mouse.x - node.x;
+            const cursorDy = Organism.mouse.y - node.y;
+            const cursorDist = Math.sqrt(cursorDx * cursorDx + cursorDy * cursorDy);
+            const attractRadius = 280;
+            if (cursorDist < attractRadius && cursorDist > 10) {
+                const force = (1 - cursorDist / attractRadius) * 0.012;
+                node.vx += (cursorDx / cursorDist) * force;
+                node.vy += (cursorDy / cursorDist) * force;
+            }
+            
+            // Dampen velocity — prevents runaway acceleration
+            node.vx *= 0.997;
+            node.vy *= 0.997;
             
             // Bounce off edges
             if (node.x < 0 || node.x > canvas.width) node.vx *= -1;
@@ -894,6 +1091,87 @@ function toggleLayerDetail(element) {
         if (el !== element) el.classList.remove('expanded');
     });
     element.classList.toggle('expanded');
+}
+
+// ========================================
+// ORGANISM BEHAVIORS
+// Cards, layers, and elements react to presence.
+// Everything notices. Everything recovers.
+// ========================================
+function initOrganismBehaviors() {
+    // --- Feature & Project Cards: 3D tilt toward cursor ---
+    const interactiveCards = document.querySelectorAll('.feature-card, .project-card');
+    interactiveCards.forEach(card => {
+        card.style.transformStyle = 'preserve-3d';
+        card.style.willChange = 'transform';
+        
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = (e.clientX - rect.left - rect.width / 2) / rect.width;
+            const y = (e.clientY - rect.top - rect.height / 2) / rect.height;
+            
+            // 3D tilt + lift + scale — the card orients toward you
+            card.style.transform = `perspective(800px) rotateY(${x * 6}deg) rotateX(${-y * 4}deg) translateY(-5px) scale(1.02)`;
+            
+            // Dynamic inner glow follows cursor position
+            const glowX = ((e.clientX - rect.left) / rect.width) * 100;
+            const glowY = ((e.clientY - rect.top) / rect.height) * 100;
+            card.style.background = `radial-gradient(circle at ${glowX}% ${glowY}%, rgba(102, 126, 234, 0.12) 0%, var(--bg-card) 60%)`;
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            // Fluid recovery to resting state
+            card.style.transform = '';
+            card.style.background = '';
+        });
+    });
+    
+    // --- Architecture Layers: breathing animation ---
+    document.querySelectorAll('.arch-layer').forEach(layer => {
+        layer.classList.add('organism-breathing');
+    });
+    
+    // Security supercell gets its own heartbeat rhythm
+    document.querySelectorAll('.security-supercell').forEach(cell => {
+        cell.classList.add('organism-breathing');
+    });
+    
+    // --- Skill tags and badges: stagger delays for wave effect ---
+    document.querySelectorAll('.tech-badge').forEach((badge, i) => {
+        badge.style.animationDelay = `${i * 0.2}s`;
+        badge.classList.add('organism-tag-breathing');
+    });
+    
+    // --- Contact cards: subtle depth response ---
+    document.querySelectorAll('.contact-card').forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = (e.clientX - rect.left - rect.width / 2) / rect.width;
+            const y = (e.clientY - rect.top - rect.height / 2) / rect.height;
+            card.style.transform = `perspective(600px) rotateY(${x * 4}deg) rotateX(${-y * 3}deg) translateY(-3px)`;
+        });
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = '';
+        });
+    });
+    
+    // --- Global proximity awareness for nav links ---
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('mouseenter', () => {
+            link.style.textShadow = '0 0 10px rgba(102, 126, 234, 0.5)';
+        });
+        link.addEventListener('mouseleave', () => {
+            link.style.textShadow = '';
+        });
+    });
+    
+    // --- Surface sync indicator breathing ---
+    const syncDot = document.querySelector('.sync-dot');
+    if (syncDot) {
+        syncDot.classList.add('organism-pulse');
+    }
+    
+    console.log('🌿 Organism behaviors active — the site is alive');
 }
 
 // ========================================
