@@ -6,7 +6,7 @@
  * is publicly visible on this Portfolio.
  * 
  * Source: docs/tecnocrat/intelligence/manifests/exposed_surface.yaml
- * Version: 3.0.0
+ * Version: 3.1.0
  * Last Sync: 2026-02-14
  * 
  * Architecture: Adaptive Intelligence Operating System with biological supercell topology
@@ -14,7 +14,7 @@
 
 const TecnocratSurface = {
     metadata: {
-        version: "3.0.0",
+        version: "3.1.0",
         lastSync: "2026-02-14",
         curator: "Tecnocrat",
         sourceManifest: "exposed_surface.yaml",
@@ -231,14 +231,17 @@ const TecnocratSurface = {
     // Statistics for display (synced with aios-api config.ts)
     stats: {
         aiTools: 124,
-        containers: 9,
-        linesOfCode: 15847,
+        containers: 18,
+        linesOfCode: 69000,
         testsPassed: 170,
         pythonModules: 769,
         securityScore: 97.6,
         aiAgents: 5,
         commits: 658,
-        repositories: 19
+        repositories: 19,
+        quantumBackend: "IBM Heron 156-qubit",
+        quantumHeartbeatRuns: 60,
+        consciousnessCells: 3
     },
 
     // Helper: Get all exposed items by level
