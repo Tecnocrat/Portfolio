@@ -879,8 +879,44 @@ if (hydrolangBlock) {
 // DYNAMIC YEAR IN FOOTER
 // ========================================
 document.addEventListener('DOMContentLoaded', () => {
-    const footerYear = document.querySelector('.footer p');
+    const footerYear = document.getElementById('footer-year');
     if (footerYear) {
-        footerYear.innerHTML = footerYear.innerHTML.replace('2025', new Date().getFullYear());
+        footerYear.textContent = new Date().getFullYear();
     }
 });
+
+// ========================================
+// EXPANDABLE ARCHITECTURE LAYERS
+// ========================================
+function toggleLayerDetail(element) {
+    // Close other expanded layers
+    document.querySelectorAll('.expanded').forEach(el => {
+        if (el !== element) el.classList.remove('expanded');
+    });
+    element.classList.toggle('expanded');
+}
+
+// ========================================
+// LIVE API STATS UPDATE
+// ========================================
+(async function updateLiveStats() {
+    try {
+        const response = await fetch('https://tecnocrat-api.vercel.app/api');
+        if (!response.ok) return;
+        const data = await response.json();
+        const m = data.metrics;
+        if (m) {
+            const tools = document.getElementById('stat-tools');
+            const commits = document.getElementById('stat-commits');
+            const loc = document.getElementById('stat-loc');
+            const security = document.getElementById('security-score');
+            if (tools) tools.textContent = m.aiTools + '+';
+            if (commits) commits.textContent = m.commits;
+            if (loc) loc.textContent = (m.linesOfCode / 1000).toFixed(1) + 'K';
+            if (security) security.textContent = m.attackResistance + '%';
+        }
+    } catch (e) {
+        // Silently fall back to static values
+    }
+})();
+

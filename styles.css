@@ -1382,6 +1382,100 @@ section {
 }
 
 /* ========================================
+   EXPANDABLE ARCHITECTURE LAYERS
+   Click-to-reveal depth
+   ======================================== */
+.arch-layer.expandable {
+    cursor: pointer;
+    position: relative;
+}
+
+.arch-layer.expandable:hover {
+    border-color: var(--accent);
+    box-shadow: var(--glow-accent);
+}
+
+.expand-hint {
+    margin-left: auto;
+    color: var(--text-muted);
+    transition: var(--transition);
+    font-size: 0.8rem;
+}
+
+.arch-layer.expanded .expand-hint {
+    transform: rotate(180deg);
+    color: var(--accent);
+}
+
+.layer-detail {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                opacity 0.3s ease,
+                margin-top 0.3s ease;
+    margin-top: 0;
+}
+
+.arch-layer.expanded .layer-detail,
+.security-supercell.expanded .layer-detail {
+    max-height: 300px;
+    opacity: 1;
+    margin-top: 16px;
+}
+
+.layer-detail p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 12px;
+}
+
+.detail-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.detail-tags span {
+    background: rgba(0, 245, 212, 0.1);
+    border: 1px solid rgba(0, 245, 212, 0.25);
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: var(--accent);
+    font-weight: 500;
+}
+
+.security-supercell.expandable {
+    cursor: pointer;
+    flex-direction: column;
+    align-items: center;
+}
+
+.security-supercell.expandable:hover {
+    background: rgba(247, 37, 133, 0.25);
+}
+
+.security-detail {
+    width: 100%;
+    text-align: center;
+}
+
+.security-detail p {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* Layer header flex fix for expand hint */
+.arch-layer.expandable .layer-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* ========================================
    RESPONSIVE DESIGN
    ======================================== */
 @media (max-width: 992px) {
