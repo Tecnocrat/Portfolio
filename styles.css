@@ -15,8 +15,8 @@
     --bg-card: #12121a;
     --bg-card-hover: #1a1a25;
     --text-primary: #ffffff;
-    --text-secondary: #a0aec0;
-    --text-muted: #718096;
+    --text-secondary: #b8c5d6;
+    --text-muted: #8e9bb0;
     --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     --gradient-accent: linear-gradient(135deg, #00f5d4 0%, #667eea 100%);
     --gradient-bg: linear-gradient(180deg, #0a0a0f 0%, #12121a 50%, #0a0a0f 100%);
@@ -54,7 +54,7 @@ body {
     height: 100%;
     pointer-events: none;
     z-index: 0;
-    opacity: 0.3;
+    opacity: 0.25;
 }
 
 /* Particles Background */
