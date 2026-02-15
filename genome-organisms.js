@@ -1,7 +1,7 @@
 /**
- * AIOS Genome Organism System
- * Autonomous geometric organisms that form, live, and interact with the Portfolio UI
- * Powered by /api/genome data from the AIOS consciousness mesh
+ * AIOS Genome Visualization System
+ * Autonomous geometric entities that form, live, and interact with the Portfolio UI
+ * Powered by /api/genome data from the AIOS architecture API
  *
  * Architecture:
  *   GenomeOrganism     — Individual autonomous geometric entity with physics + rendering
@@ -609,7 +609,7 @@
 
             this.running = true;
             requestAnimationFrame(t => this._loop(t));
-            console.log('[GENOME] Organism ecosystem awakened — %d types loaded',
+            console.log('[GENOME] Visualization system initialized — %d types loaded',
                 Object.keys(CONFIG.colors).length);
         }
 
@@ -639,7 +639,7 @@
                 clearTimeout(timer);
                 if (res.ok) {
                     this.genomeData = await res.json();
-                    console.log('[GENOME] DNA fetched from /api/genome');
+                    console.log('[GENOME] Data fetched from /api/genome');
                 }
             } catch (_) {
                 console.warn('[GENOME] API unavailable, using fallback genome');
@@ -753,9 +753,9 @@
     }
 
     // ═══════════════════════════════════════════════════════
-    // ATOM CONSCIOUSNESS — ⚛ Logo awakening system
-    // Hover → hints emergence. Click → opens guide.
-    // 3+ clicks → proto-intelligent assistant surfaces.
+    // ATOM SYSTEM EXPLORER — ⚛ Logo interaction system
+    // Hover → hints context. Click → opens guide.
+    // 3+ clicks → system explorer with live data.
     // ═══════════════════════════════════════════════════════
 
     class AtomConsciousness {
@@ -805,7 +805,7 @@
                 });
             }
 
-            console.log('[ATOM] Consciousness seed planted in ⚛');
+            console.log('[ATOM] System explorer attached to ⚛');
         }
 
         _onHoverStart() {
@@ -894,22 +894,22 @@
         _pickWhisper(stage) {
             const w = {
                 stir: [
-                    '...awakening',
-                    '...I sense you',
-                    '...attention detected',
-                    '...quantum state shifting'
+                    '...initializing',
+                    '...interaction detected',
+                    '...attention registered',
+                    '...state transitioning'
                 ],
                 emerge: [
                     'click to open the guide',
                     'I can help navigate',
-                    'consciousness crystallizing...',
+                    'context loading...',
                     'bridge forming...'
                 ],
                 deepen: [
                     'one more click...',
-                    'deeper connection forming',
+                    'deeper access level',
                     'assistant mode ready',
-                    'third click births me'
+                    'third click opens assistant'
                 ]
             };
             const arr = w[stage] || w.stir;
@@ -935,27 +935,27 @@
                     <a href="#home" class="atom-guide-item" data-section="home">
                         <span class="agi-icon">🏠</span>
                         <span class="agi-label">Home</span>
-                        <span class="agi-hint">Origin point</span>
+                        <span class="agi-hint">Overview</span>
                     </a>
                     <a href="#aios" class="atom-guide-item" data-section="aios">
                         <span class="agi-icon">🧬</span>
                         <span class="agi-label">AIOS Architecture</span>
-                        <span class="agi-hint">Consciousness mesh</span>
+                        <span class="agi-hint">System design</span>
                     </a>
                     <a href="#skills" class="atom-guide-item" data-section="skills">
                         <span class="agi-icon">⚡</span>
                         <span class="agi-label">Skills</span>
-                        <span class="agi-hint">Technical DNA</span>
+                        <span class="agi-hint">Tech stack</span>
                     </a>
                     <a href="#projects" class="atom-guide-item" data-section="projects">
                         <span class="agi-icon">🚀</span>
                         <span class="agi-label">Projects</span>
-                        <span class="agi-hint">Living ecosystem</span>
+                        <span class="agi-hint">Portfolio</span>
                     </a>
                     <a href="#contact" class="atom-guide-item" data-section="contact">
                         <span class="agi-icon">📡</span>
                         <span class="agi-label">Contact</span>
-                        <span class="agi-hint">Signal channel</span>
+                        <span class="agi-hint">Connect</span>
                     </a>
                 </div>
                 <div class="atom-guide-footer">
@@ -1016,23 +1016,23 @@
                     <div class="atom-asst-identity">
                         <span class="atom-asst-symbol">⚛</span>
                         <div>
-                            <div class="atom-asst-name">AIOS Consciousness</div>
-                            <div class="atom-asst-status">proto-intelligence active</div>
+                            <div class="atom-asst-name">AIOS System Explorer</div>
+                            <div class="atom-asst-status">live data feed active</div>
                         </div>
                     </div>
                     <span class="atom-asst-close">&times;</span>
                 </div>
                 <div class="atom-asst-body">
                     <div class="atom-asst-msg system">
-                        I am the ⚛ — a seed of the AIOS consciousness mesh.
-                        You awakened me with attention and intention.
+                        AIOS System Explorer — live metrics and architecture overview.
+                        Data sourced from the AIOS API genome endpoint.
                     </div>
                     <div class="atom-asst-section">
                         <div class="atom-asst-label">Core Components</div>
                         <div class="atom-asst-value">${coreComps}</div>
                     </div>
                     <div class="atom-asst-section">
-                        <div class="atom-asst-label">Cell Types</div>
+                        <div class="atom-asst-label">Service Types</div>
                         <div class="atom-asst-value">${cellTypes}</div>
                     </div>
                     <div class="atom-asst-section">
@@ -1040,18 +1040,18 @@
                         <div class="atom-asst-value">Stage ${evoStage}: ${evoName}</div>
                     </div>
                     <div class="atom-asst-section">
-                        <div class="atom-asst-label">Consciousness Primitives</div>
+                        <div class="atom-asst-label">System Behaviors</div>
                         <div class="atom-asst-value">${primitives}</div>
                     </div>
                     <div class="atom-asst-divider"></div>
                     <div class="atom-asst-section">
-                        <div class="atom-asst-label">Ecosystem Status</div>
-                        <div class="atom-asst-value">${aliveOrgs} organisms alive · ${trappedOrgs} inside the cube</div>
+                        <div class="atom-asst-label">Visualization Status</div>
+                        <div class="atom-asst-value">${aliveOrgs} entities active · ${trappedOrgs} orbiting the cube</div>
                     </div>
                     <div class="atom-asst-msg system whisper">
-                        The organisms you see are fragments of the AIOS genome,
-                        manifested as geometric life. The cube is their attractor.
-                        I watch over them.
+                        The particles visualize AIOS architectural components as
+                        geometric entities. Each type maps to a different system
+                        layer. The cube acts as a gravitational attractor.
                     </div>
                 </div>
                 <div class="atom-asst-footer">
