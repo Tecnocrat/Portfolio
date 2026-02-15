@@ -36,7 +36,7 @@
             dna:            ['#667eea', '#00f5d4', '#f72585', '#764ba2'],
             consciousness:  ['#f72585', '#b5179e'],
             evolution:      ['#ff6b35', '#ffd700'],
-            infrastructure: ['#4a5568', '#718096']
+            electron:       ['#00bfff', '#7df9ff', '#e0f7ff']
         }
     };
 
@@ -88,7 +88,7 @@
         _calcBaseSize() {
             const s = {
                 nucleus: 35, cell: 18, dna: 14,
-                consciousness: 12, evolution: 18, infrastructure: 10
+                consciousness: 12, evolution: 18, electron: 6
             };
             return (s[this.type] || 20) + Math.random() * 18;
         }
@@ -159,9 +159,11 @@
         }
 
         _applyBehavior(dt, organisms, mouse) {
-            // Random wander
-            this.ax += (Math.random() - 0.5) * 0.3;
-            this.ay += (Math.random() - 0.5) * 0.3;
+            // Random wander (not for electrons — at absolute zero, no thermal motion)
+            if (this.type !== 'electron') {
+                this.ax += (Math.random() - 0.5) * 0.3;
+                this.ay += (Math.random() - 0.5) * 0.3;
+            }
 
             // Flee cursor gently (but NOT if trapped in cube)
             if (mouse && !this.trappedInCube) {
@@ -212,7 +214,7 @@
                     this.targetOpacity = 0.35; // dimmer inside
                 } else if (dist < attractRadius && dist > 0) {
                     // Gravitational pull toward cube
-                    const pullStrength = this.type === 'infrastructure' ? 0.08 :
+                    const pullStrength = this.type === 'electron' ? 0.08 :
                                          this.type === 'cell' ? 0.06 : 0.03;
                     const f = (1 - dist / attractRadius) * pullStrength;
                     this.ax += (dx / dist) * f;
@@ -265,12 +267,21 @@
                         }
                     }
                     break;
-                case 'infrastructure':
-                    if (Math.random() < 0.01) {
-                        const a = Math.floor(Math.random() * 4) * Math.PI / 2;
-                        this.vx = Math.cos(a) * 0.5;
-                        this.vy = Math.sin(a) * 0.5;
+                case 'electron':
+                    // Coulomb repulsion — like charges repel
+                    for (const o of organisms) {
+                        if (o.type !== 'electron' || o.id === this.id) continue;
+                        const dx = this.x - o.x, dy = this.y - o.y;
+                        const d = Math.sqrt(dx * dx + dy * dy);
+                        if (d < 180 && d > 0) {
+                            // Inverse-square repulsion (Coulomb)
+                            const f = 1.5 / (d * d) * 1000;
+                            this.ax += (dx / d) * Math.min(f, 0.4);
+                            this.ay += (dy / d) * Math.min(f, 0.4);
+                        }
                     }
+                    // No random wander — at absolute zero, only quantum forces act
+                    // (wander is already zeroed out by removing base wander for electrons)
                     break;
             }
         }
@@ -435,32 +446,107 @@
             ctx.fillText('S' + Math.max(1, this.morphSides - 2), 0, 0);
         }
 
-        _r_infrastructure(ctx) {
-            const color = CONFIG.colors.infrastructure[1];
+        _r_electron(ctx) {
+            const [c1, c2, c3] = CONFIG.colors.electron;
             const s = this.size;
+            const t = this.phase;
 
-            ctx.beginPath();
-            ctx.moveTo(-s, 0); ctx.lineTo(s, 0);
-            ctx.moveTo(0, -s); ctx.lineTo(0, s);
-            ctx.strokeStyle = color + '60';
-            ctx.lineWidth = 0.8;
-            ctx.stroke();
-
-            for (const [nx, ny] of [[-s,-s],[s,-s],[s,s],[-s,s]]) {
+            // ── Probability cloud (|ψ|² orbital) ──
+            // At absolute zero the electron is in the ground state
+            // but Heisenberg uncertainty smears its position
+            const cloudLayers = 5;
+            for (let i = cloudLayers; i >= 1; i--) {
+                const r = s * (0.6 + i * 0.9);
+                const wobble = 1 + Math.sin(t * 3 + i * 1.2) * 0.15;
+                const alpha = (0.03 / i);
                 ctx.beginPath();
-                ctx.rect(nx - 2, ny - 2, 4, 4);
-                ctx.fillStyle = color + '40';
+                ctx.arc(0, 0, r * wobble, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(0, 191, 255, ${alpha})`;
                 ctx.fill();
-                ctx.strokeStyle = color + '80';
-                ctx.lineWidth = 0.5;
-                ctx.stroke();
             }
 
-            if (Math.sin(this.phase * 2) > 0) {
+            // ── De Broglie matter wave ──
+            // Wavelength visible as sinusoidal trail behind the particle
+            if (this._trail && this._trail.length > 1) {
+                ctx.save();
+                ctx.translate(-this.x, -this.y); // back to world coords
                 ctx.beginPath();
-                ctx.arc(0, 0, 2, 0, Math.PI * 2);
-                ctx.fillStyle = '#00f5d4';
+                for (let i = 0; i < this._trail.length; i++) {
+                    const p = this._trail[i];
+                    const fade = 1 - (p.age / 2000);
+                    if (fade <= 0) continue;
+                    const waveY = Math.sin(i * 0.8 + t * 4) * 3;
+                    if (i === 0) ctx.moveTo(p.x, p.y + waveY);
+                    else ctx.lineTo(p.x, p.y + waveY);
+                }
+                ctx.strokeStyle = `rgba(125, 249, 255, 0.15)`;
+                ctx.lineWidth = 0.8;
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            // ── Quantum tunneling flash ──
+            if (this._tunnelFlash > 0) {
+                const flashR = s * 3 * (this._tunnelFlash / 8);
+                const flashGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, flashR);
+                flashGrad.addColorStop(0, `rgba(125, 249, 255, ${0.4 * this._tunnelFlash / 8})`);
+                flashGrad.addColorStop(1, 'rgba(125, 249, 255, 0)');
+                ctx.fillStyle = flashGrad;
+                ctx.beginPath();
+                ctx.arc(0, 0, flashR, 0, Math.PI * 2);
                 ctx.fill();
+            }
+
+            // ── Spin visualization ──
+            // Two orthogonal elliptical rings showing intrinsic angular momentum
+            for (let ring = 0; ring < 2; ring++) {
+                const rAngle = t * 6 + ring * Math.PI / 2;
+                const rx = s * 1.2;
+                const ry = s * 0.35;
+                ctx.save();
+                ctx.rotate(rAngle);
+                ctx.beginPath();
+                ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(0, 191, 255, ${0.12 + ring * 0.05})`;
+                ctx.lineWidth = 0.4;
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            // ── Point particle core ──
+            // The electron is point-like — zero classical radius
+            const corePulse = 1 + Math.sin(t * 8) * 0.3;
+            const coreR = Math.max(1.2, s * 0.15 * corePulse);
+
+            // Inner glow
+            const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, coreR * 4);
+            glow.addColorStop(0, 'rgba(125, 249, 255, 0.6)');
+            glow.addColorStop(0.3, 'rgba(0, 191, 255, 0.2)');
+            glow.addColorStop(1, 'rgba(0, 191, 255, 0)');
+            ctx.fillStyle = glow;
+            ctx.beginPath();
+            ctx.arc(0, 0, coreR * 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Hard bright core
+            ctx.beginPath();
+            ctx.arc(0, 0, coreR, 0, Math.PI * 2);
+            ctx.fillStyle = c3;
+            ctx.fill();
+
+            // ── Charge field lines (faint) ──
+            // Radial lines showing the electric field emanating from the charge
+            const numFieldLines = 8;
+            for (let i = 0; i < numFieldLines; i++) {
+                const a = (Math.PI * 2 / numFieldLines) * i + t * 0.3;
+                const innerR = coreR * 2;
+                const outerR = s * 2.5 + Math.sin(t * 2 + i) * s * 0.3;
+                ctx.beginPath();
+                ctx.moveTo(Math.cos(a) * innerR, Math.sin(a) * innerR);
+                ctx.lineTo(Math.cos(a) * outerR, Math.sin(a) * outerR);
+                ctx.strokeStyle = `rgba(0, 191, 255, 0.06)`;
+                ctx.lineWidth = 0.3;
+                ctx.stroke();
             }
         }
     }
@@ -624,7 +710,7 @@
             window.addEventListener('resize', () => this._resize());
 
             // Initial burst — one of each type staggered
-            ['nucleus','cell','cell','dna','consciousness','evolution','infrastructure']
+            ['nucleus','cell','cell','dna','consciousness','evolution','electron']
                 .forEach((t, i) => setTimeout(() => this._spawn(t), i * 800));
 
             this.running = true;
@@ -671,7 +757,7 @@
                     dna: { languages: { Python:60,'C++':20,'C#':15,TypeScript:5 } },
                     consciousness: { primitives: ['Awareness','Adaptation','Coherence','Momentum'] },
                     evolution: { stage: 1, name: 'Supercell Core' },
-                    infrastructure: { layers: ['Win11','WSL2','Docker','Traefik','Vault'] }
+                    electron: { charge: -1, spin: 0.5, mass_eV: 511000, ground_state: true }
                 };
             }
         }
@@ -695,7 +781,7 @@
 
         _randType() {
             const t = ['nucleus','cell','cell','dna','dna',
-                        'consciousness','evolution','infrastructure','infrastructure'];
+                        'consciousness','evolution','electron','electron'];
             return t[Math.floor(Math.random() * t.length)];
         }
 
