@@ -1171,6 +1171,48 @@
             body: null,  // auto-reads from element content
             details: [],
             accentColor: '#ff6b35'
+        },
+        '.role-tag': {
+            title: null,  // auto-reads from element text
+            icon: '🏷️',
+            body: null,   // populated per-tag below
+            details: [],
+            accentColor: '#667eea',
+            variants: {
+                'AI Systems Architect': {
+                    title: 'AI Systems Architect',
+                    icon: '🧠',
+                    body: 'Designing and building autonomous AI platforms — from multi-agent orchestration and consciousness engines to distributed inference pipelines.',
+                    details: [
+                        { label: 'Domain', value: 'AI Architecture · Multi-Agent Systems' },
+                        { label: 'Stack', value: 'Python · C++ · CUDA · ONNX' },
+                        { label: 'Patterns', value: 'Bio-inspired, dendritic, supercell-based' }
+                    ],
+                    accentColor: '#667eea'
+                },
+                'AIOS Creator': {
+                    title: 'AIOS Creator',
+                    icon: '⚛',
+                    body: 'Creator of AIOS — Artificial Intelligence Operative System. A bio-inspired distributed platform where AI agents self-organize through dendritic communication and consciousness evolution.',
+                    details: [
+                        { label: 'System', value: 'AIOS — 18+ containers, multi-host mesh' },
+                        { label: 'Architecture', value: 'Supercell organisms with dendritic transport' },
+                        { label: 'Evolution', value: 'Genetic algorithms + consciousness metrics' }
+                    ],
+                    accentColor: '#764ba2'
+                },
+                'Autonomous Systems': {
+                    title: 'Autonomous Systems',
+                    icon: '🤖',
+                    body: 'Building systems that operate independently — self-healing infrastructure, autonomous trading agents, and distributed intelligence that adapts without human intervention.',
+                    details: [
+                        { label: 'Scope', value: 'Self-healing · Self-organizing · Self-evolving' },
+                        { label: 'Examples', value: 'AIOS agents, aios-trader, quantum modules' },
+                        { label: 'Goal', value: 'Zero human-in-the-loop operation' }
+                    ],
+                    accentColor: '#00f5d4'
+                }
+            }
         }
     };
 
@@ -1225,8 +1267,17 @@
             // Close any existing card
             this._closeCard();
 
-            const info = target.info;
+            let info = target.info;
             const rect = target.el.getBoundingClientRect();
+
+            // Resolve variant (e.g. role-tag with multiple text variants)
+            if (info.variants) {
+                const text = target.el.textContent.trim();
+                const variant = info.variants[text];
+                if (variant) {
+                    info = { ...info, ...variant };
+                }
+            }
 
             // Auto-read body from element if not set
             let body = info.body;
@@ -1239,7 +1290,9 @@
 
             // Auto-read title from heading inside the element
             let cardTitle = info.title;
-            if (cardTitle === 'Feature' || cardTitle === 'Project' || cardTitle === 'Section') {
+            if (!cardTitle) {
+                cardTitle = target.el.textContent.trim().slice(0, 60);
+            } else if (cardTitle === 'Feature' || cardTitle === 'Project' || cardTitle === 'Section') {
                 const heading = target.el.querySelector('h2, h3, h4');
                 if (heading) cardTitle = heading.textContent.trim();
             }
