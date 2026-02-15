@@ -33,6 +33,14 @@
     box-sizing: border-box;
 }
 
+/* Environmental control — text is an abstract visual object, not selectable */
+body {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
 html {
     scroll-behavior: smooth;
 }
@@ -731,6 +739,153 @@ body {
 .left   { transform: rotateY(-90deg) translateZ(125px); }
 .top    { transform: rotateX(90deg) translateZ(125px); }
 .bottom { transform: rotateX(-90deg) translateZ(125px); }
+
+/* ========================================
+   IMMERSIVE CUBE EXPANSION
+   Triple-click → step inside the cube
+   ======================================== */
+
+/* Overlay backdrop — darkens everything behind the cube */
+.cube-immersive-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 10, 15, 0);
+    z-index: 9998;
+    pointer-events: none;
+    transition: background 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cube-immersive-overlay.active {
+    background: rgba(10, 10, 15, 0.92);
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+/* Lock scroll when inside */
+body.cube-immersive-active {
+    overflow: hidden;
+}
+
+/* Sensing pulse — 2 clicks, the cube notices */
+.cube-sensing {
+    animation: cubeSensingPulse 0.8s ease-out;
+}
+
+@keyframes cubeSensingPulse {
+    0% { filter: brightness(1) drop-shadow(0 0 0 transparent); }
+    40% { filter: brightness(1.3) drop-shadow(0 0 20px rgba(102, 126, 234, 0.5)); }
+    100% { filter: brightness(1) drop-shadow(0 0 0 transparent); }
+}
+
+/* Expanded state — cube fills the viewport */
+.cube-container.cube-expanded {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: min(85vw, 85vh) !important;
+    height: min(85vw, 85vh) !important;
+    z-index: 9999;
+    perspective: 2000px;
+    transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Faces scale up in immersive mode */
+.cube-expanded .cube {
+    width: 100%;
+    height: 100%;
+}
+
+.cube-expanded .face {
+    width: 100% !important;
+    height: 100% !important;
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Recalculate face translations based on the new size */
+.cube-expanded .front  { transform: translateZ(calc(min(85vw, 85vh) / 2)); }
+.cube-expanded .back   { transform: rotateY(180deg) translateZ(calc(min(85vw, 85vh) / 2)); }
+.cube-expanded .right  { transform: rotateY(90deg) translateZ(calc(min(85vw, 85vh) / 2)); }
+.cube-expanded .left   { transform: rotateY(-90deg) translateZ(calc(min(85vw, 85vh) / 2)); }
+.cube-expanded .top    { transform: rotateX(90deg) translateZ(calc(min(85vw, 85vh) / 2)); }
+.cube-expanded .bottom { transform: rotateX(-90deg) translateZ(calc(min(85vw, 85vh) / 2)); }
+
+/* Immersive face styling — glass panels, glowing edges */
+.face-immersive {
+    background: rgba(102, 126, 234, 0.06) !important;
+    border: 1px solid rgba(102, 126, 234, 0.25) !important;
+    backdrop-filter: blur(20px);
+    box-shadow:
+        inset 0 0 40px rgba(102, 126, 234, 0.08),
+        0 0 30px rgba(102, 126, 234, 0.1);
+}
+
+.face-immersive .face-content {
+    transform: scale(1.8);
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.face-immersive .face-content i,
+.face-immersive .face-content .cpp-icon,
+.face-immersive .face-content .csharp-icon,
+.face-immersive .face-content .aios-symbol {
+    font-size: 5rem;
+    filter: drop-shadow(0 0 15px rgba(102, 126, 234, 0.5));
+}
+
+.face-immersive .face-content span:last-child {
+    font-size: 1.4rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    opacity: 0.9;
+}
+
+/* Close button */
+.cube-immersive-close {
+    display: none;
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    width: 48px;
+    height: 48px;
+    border: 1px solid rgba(102, 126, 234, 0.4);
+    border-radius: 50%;
+    background: rgba(18, 18, 26, 0.8);
+    color: var(--text-primary);
+    font-size: 1.8rem;
+    cursor: pointer;
+    z-index: 10001;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    line-height: 1;
+}
+
+.cube-expanded .cube-immersive-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cube-immersive-close:hover {
+    border-color: rgba(102, 126, 234, 0.8);
+    background: rgba(102, 126, 234, 0.2);
+    transform: scale(1.1);
+}
+
+/* Interior particle canvas — fills viewport behind cube faces */
+.cube-interior-canvas {
+    display: none;
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9998;
+    pointer-events: none;
+}
+
+.cube-expanded .cube-interior-canvas {
+    display: block;
+}
 
 /* Scroll Indicator */
 .scroll-indicator {

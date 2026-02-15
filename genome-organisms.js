@@ -1139,19 +1139,7 @@
             ],
             accentColor: '#667eea'
         },
-        '.cube-container': {
-            title: 'Technology Cube',
-            icon: '🧊',
-            body: 'Interactive 3D cube representing the four core technology pillars of AIOS. Each face maps to a language or capability layer. The cube also acts as a gravitational attractor for the background particle system.',
-            details: [
-                { label: 'Front', value: 'Python — AI Core & orchestration' },
-                { label: 'Back', value: 'C++ — Performance engine (pybind11)' },
-                { label: 'Right', value: 'C# — Desktop interface (WPF/.NET 8)' },
-                { label: 'Left', value: 'Security — Defense-in-depth layer' },
-                { label: 'Physics', value: 'Attracts nearby geometric entities' }
-            ],
-            accentColor: '#00f5d4'
-        },
+        // .cube-container — excluded: triple-click triggers immersive cube expansion instead,
         '.hero-title': {
             title: 'About Me',
             icon: '👨‍💻',
