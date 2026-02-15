@@ -9,7 +9,7 @@
  * Version: 3.1.0
  * Last Sync: 2026-02-14
  * 
- * Architecture: Adaptive Intelligence Operating System with biological supercell topology
+ * Architecture: Adaptive Intelligence Operating System with bio-inspired modular topology
  */
 
 const TecnocratSurface = {
@@ -32,24 +32,24 @@ const TecnocratSurface = {
     surface: {
         // SUPERCELL ARCHITECTURE (replaces Hydrolang)
         supercell: {
-            name: "Supercell Architecture",
+            name: "Modular Architecture",
             exposed: [
                 {
                     id: "core_concept",
                     name: "Core Concept",
                     level: "L2_TECHNICAL",
-                    description: "Transform Windows 11 into a containerized AI-driven operating environment with biological architecture",
+                    description: "Transform Windows 11 into a containerized AI-driven operating environment with bio-inspired modular architecture",
                     displayContent: {
-                        title: "Supercell Architecture",
+                        title: "Modular Architecture",
                         tagline: "Adaptive Intelligence Operating System",
-                        layers: ["Nucleus (Core)", "Membrane (Security)", "Organelles (Containers)", "Dendrites (Communication)", "Cytoplasm (Runtime)"]
+                        layers: ["Nucleus (Core)", "Membrane (Security)", "Organelles (Containers)", "Service Mesh (Communication)", "Runtime (Execution)"]
                     }
                 },
                 {
                     id: "cell_types",
                     name: "Cell Types",
                     level: "L2_TECHNICAL",
-                    description: "Specialized container types in the Supercell architecture",
+                    description: "Specialized container types in the modular architecture",
                     displayContent: {
                         cells: [
                             { type: "Nucleus", role: "Core orchestration & state management", icon: "⚛" },
@@ -63,10 +63,10 @@ const TecnocratSurface = {
                     id: "philosophy",
                     name: "Philosophy",
                     level: "L1_PROFESSIONAL",
-                    description: "Biological-inspired AI system design",
+                    description: "Bio-inspired AI system design",
                     displayContent: {
-                        tagline: "Living systems architecture for AI",
-                        principle: "Cells that compute, membranes that protect, evolution that adapts"
+                        tagline: "Bio-inspired systems architecture for AI",
+                        principle: "Modules that compute, boundaries that protect, evolution that adapts"
                     }
                 }
             ]
@@ -74,16 +74,16 @@ const TecnocratSurface = {
 
         // SECURITY SUPERCELL
         security: {
-            name: "Security Membrane",
+            name: "Security Layer",
             exposed: [
                 {
                     id: "architecture_patterns",
                     name: "Architecture Patterns",
                     level: "L2_TECHNICAL",
-                    description: "Digital immune system design, membrane validation",
+                    description: "Defense-in-depth security design, automated validation",
                     displayContent: {
-                        concept: "Digital Immune System",
-                        patterns: ["Membrane Validation", "Coherence Enforcement", "Immune Memory", "Attack Resistance"],
+                        concept: "Defense-in-Depth Security",
+                        patterns: ["Input Validation", "Consistency Enforcement", "Threat Memory", "Attack Resistance"],
                         testsPassed: "170/170",
                         securityScore: "97.6%"
                     }
@@ -94,7 +94,7 @@ const TecnocratSurface = {
                     level: "L1_PROFESSIONAL",
                     description: "Security-first AI development approach",
                     displayContent: {
-                        tagline: "Biological-inspired security for AI systems",
+                        tagline: "Defense-in-depth security for AI systems",
                         features: ["HashiCorp Vault integration", "Traefik reverse proxy", "Container isolation"]
                     }
                 }
@@ -160,7 +160,7 @@ const TecnocratSurface = {
                     level: "L1_PROFESSIONAL",
                     description: "Monitoring, diagnostics, optimization",
                     displayContent: {
-                        features: ["System health checks", "Performance monitoring", "Architecture validation", "Self-healing"]
+                        features: ["System health checks", "Performance monitoring", "Architecture validation", "Auto-recovery"]
                     }
                 }
             ]
@@ -178,7 +178,7 @@ const TecnocratSurface = {
                     displayContent: {
                         services: 9,
                         networks: ["aios-network"],
-                        volumes: ["persistent state", "model cache", "secrets"]
+                        volumes: ["persistent state", "model cache", "secrets management"]
                     }
                 },
                 {
@@ -219,7 +219,7 @@ const TecnocratSurface = {
                     level: "L2_TECHNICAL",
                     description: "Multi-language coordination via HTTP API",
                     displayContent: {
-                        pattern: "Supercell Interface Bridge",
+                        pattern: "Interface Bridge",
                         port: 8000,
                         protocol: "HTTP/REST + WebSocket"
                     }
