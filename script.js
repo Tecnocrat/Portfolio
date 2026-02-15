@@ -1271,6 +1271,65 @@ function initInteractiveCube() {
             ctx.stroke();
         }
 
+        // ── Core sphere (inside the inner cube) ──
+        const sphereRadius = 0.45;
+        const sphereRings = 12;
+        const sphereSegments = 16;
+        const sphereRotA = hyperTime * 0.25;
+        const sphereRotB = hyperTime * 0.15;
+
+        ctx.shadowColor = '#764ba2';
+        ctx.shadowBlur = 6 * entryAlpha;
+
+        // Latitude rings
+        for (let ring = 1; ring < sphereRings; ring++) {
+            const phi = (ring / sphereRings) * Math.PI;
+            const y = Math.cos(phi) * sphereRadius;
+            const r = Math.sin(phi) * sphereRadius;
+            let prevP = null;
+            for (let seg = 0; seg <= sphereSegments; seg++) {
+                const theta = (seg / sphereSegments) * Math.PI * 2;
+                let pt = [Math.cos(theta) * r, y, Math.sin(theta) * r];
+                pt = rotY(pt, sphereRotA);
+                pt = rotX(pt, sphereRotB);
+                const sp = xform(pt, w, h);
+                if (sp && prevP) {
+                    ctx.beginPath();
+                    ctx.moveTo(prevP[0], prevP[1]);
+                    ctx.lineTo(sp[0], sp[1]);
+                    ctx.strokeStyle = `rgba(118,75,162,${(0.12 + pulse*0.08) * entryAlpha})`;
+                    ctx.lineWidth = 0.6;
+                    ctx.stroke();
+                }
+                prevP = sp;
+            }
+        }
+
+        // Longitude lines
+        for (let seg = 0; seg < sphereSegments; seg++) {
+            const theta = (seg / sphereSegments) * Math.PI * 2;
+            let prevP = null;
+            for (let ring = 0; ring <= sphereRings; ring++) {
+                const phi = (ring / sphereRings) * Math.PI;
+                const y = Math.cos(phi) * sphereRadius;
+                const r = Math.sin(phi) * sphereRadius;
+                let pt = [Math.cos(theta) * r, y, Math.sin(theta) * r];
+                pt = rotY(pt, sphereRotA);
+                pt = rotX(pt, sphereRotB);
+                const sp = xform(pt, w, h);
+                if (sp && prevP) {
+                    ctx.beginPath();
+                    ctx.moveTo(prevP[0], prevP[1]);
+                    ctx.lineTo(sp[0], sp[1]);
+                    ctx.strokeStyle = `rgba(118,75,162,${(0.08 + pulse*0.06) * entryAlpha})`;
+                    ctx.lineWidth = 0.4;
+                    ctx.stroke();
+                }
+                prevP = sp;
+            }
+        }
+        ctx.shadowBlur = 0;
+
         // ── Scanlines ──
         drawScanlines(ctx, w, h);
 
