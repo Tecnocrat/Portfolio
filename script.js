@@ -1069,6 +1069,11 @@ function initInteractiveCube() {
     let targetYaw = 0, targetPitch = 0;
     let hyperTime = 0;
     let entryAlpha = 0;  // fade-in progress
+    let camZoom = 0;         // 0 = default, increases toward sphere
+    let targetZoom = 0;
+    const MAX_ZOOM = 4.3;   // sphere surface threshold
+    let inEventHorizon = false;
+    let horizonAlpha = 0;   // transition fade
 
     // ── 3D Math ──
     function rotY(p, a) {
@@ -1080,7 +1085,7 @@ function initInteractiveCube() {
         return [p[0], p[1]*c - p[2]*s, p[1]*s + p[2]*c];
     }
     function proj(p, w, h) {
-        const z = p[2] + 5;
+        const z = p[2] + 5 - camZoom;
         if (z <= 0.1) return null;
         const fov = 600;
         return [w/2 + (p[0]*fov)/z, h/2 + (p[1]*fov)/z, z];
@@ -1108,7 +1113,7 @@ function initInteractiveCube() {
         const gridY = S * 0.95;  // floor level
         const gridLines = 12;
         const step = S * 2 / gridLines;
-        ctx.strokeStyle = 'rgba(102, 126, 234, 0.06)';
+        ctx.strokeStyle = `rgba(102, 126, 234, ${0.06 * (1 - camZoom / MAX_ZOOM * 0.8)})`;
         ctx.lineWidth = 0.5;
         for (let i = 0; i <= gridLines; i++) {
             const offset = -S + i * step;
@@ -1136,6 +1141,112 @@ function initInteractiveCube() {
         return proj(rotX(rotY(p, -camYaw), -camPitch), w, h);
     }
 
+    // ── Event Horizon Renderer ──
+    // The surface of the hypersphere — an infinite flat plane
+    function renderEventHorizon(ctx, w, h, alpha) {
+        // Background: deep black with slight purple tint
+        ctx.fillStyle = '#020206';
+        ctx.fillRect(0, 0, w, h);
+
+        // Perspective grid — infinite plane stretching to horizon
+        const horizon = h * 0.42;
+        const vanishX = w / 2;
+        const vanishY = horizon;
+        const gridPhase = (hyperTime * 0.3) % 1;
+
+        ctx.globalAlpha = alpha;
+
+        // Horizontal lines receding to vanishing point
+        const numHLines = 40;
+        for (let i = 0; i < numHLines; i++) {
+            const t = (i + gridPhase) / numHLines;
+            const y = horizon + (h - horizon) * Math.pow(t, 1.8);
+            const depth = 1 - t;
+            const fade = Math.pow(depth, 0.5) * 0.35;
+            const spread = w * 0.8 + (w * 1.5) * t;
+
+            ctx.strokeStyle = `rgba(118, 75, 162, ${fade})`;
+            ctx.lineWidth = 0.5 + t * 1.5;
+            ctx.beginPath();
+            ctx.moveTo(vanishX - spread / 2, y);
+            ctx.lineTo(vanishX + spread / 2, y);
+            ctx.stroke();
+        }
+
+        // Vertical lines converging to vanishing point
+        const numVLines = 24;
+        for (let i = 0; i < numVLines; i++) {
+            const frac = (i / (numVLines - 1)) - 0.5;
+            const bottomX = vanishX + frac * w * 2.5;
+            const fade = 0.2 - Math.abs(frac) * 0.25;
+            if (fade <= 0) continue;
+
+            ctx.strokeStyle = `rgba(102, 126, 234, ${Math.max(0, fade)})`;
+            ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            ctx.moveTo(vanishX, vanishY);
+            ctx.lineTo(bottomX, h + 20);
+            ctx.stroke();
+        }
+
+        // Horizon glow line
+        const glowIntensity = 0.3 + Math.sin(hyperTime * 0.8) * 0.1;
+        const horizGrad = ctx.createLinearGradient(0, vanishY - 20, 0, vanishY + 20);
+        horizGrad.addColorStop(0, 'rgba(118, 75, 162, 0)');
+        horizGrad.addColorStop(0.5, `rgba(118, 75, 162, ${glowIntensity})`);
+        horizGrad.addColorStop(1, 'rgba(118, 75, 162, 0)');
+        ctx.fillStyle = horizGrad;
+        ctx.fillRect(0, vanishY - 20, w, 40);
+
+        // Subtle ripples on the surface — concentric circles from vanishing point
+        for (let r = 0; r < 6; r++) {
+            const rippleRadius = ((hyperTime * 40 + r * 80) % 500);
+            const rippleFade = Math.max(0, 1 - rippleRadius / 500) * 0.12;
+            const ellipseH = rippleRadius * 0.15; // perspective squash
+            ctx.strokeStyle = `rgba(102, 126, 234, ${rippleFade})`;
+            ctx.lineWidth = 0.8;
+            ctx.beginPath();
+            ctx.ellipse(vanishX, vanishY + ellipseH * 0.5, rippleRadius, ellipseH, 0, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+
+        // Floating data fragments — distant light specs
+        for (let i = 0; i < 30; i++) {
+            const seed = i * 7919;
+            const sx = ((seed * 13) % w);
+            const sy = horizon + ((seed * 17) % (h - horizon));
+            const depthT = (sy - horizon) / (h - horizon);
+            const blink = Math.sin(hyperTime * (1 + (seed % 3)) + seed) * 0.5 + 0.5;
+            const size = 0.5 + depthT * 1.5;
+            const brightness = blink * depthT * 0.25;
+            ctx.fillStyle = `rgba(200, 180, 255, ${brightness})`;
+            ctx.fillRect(sx, sy, size, size);
+        }
+
+        // Sky — very faint stars above horizon
+        for (let i = 0; i < 20; i++) {
+            const seed = i * 3571;
+            const sx = (seed * 23) % w;
+            const sy = (seed * 31) % horizon;
+            const blink = Math.sin(hyperTime * 0.5 + seed) * 0.5 + 0.5;
+            ctx.fillStyle = `rgba(150, 140, 200, ${blink * 0.15})`;
+            ctx.fillRect(sx, sy, 1, 1);
+        }
+
+        // Scanlines
+        drawScanlines(ctx, w, h);
+
+        // Subtle vignette
+        const vr = Math.max(w, h) * 0.8;
+        const vg = ctx.createRadialGradient(w/2, h/2, vr*0.3, w/2, h/2, vr);
+        vg.addColorStop(0, 'rgba(0,0,0,0)');
+        vg.addColorStop(1, 'rgba(0,0,0,0.7)');
+        ctx.fillStyle = vg;
+        ctx.fillRect(0, 0, w, h);
+
+        ctx.globalAlpha = 1;
+    }
+
     // ── Enter ──
     function enterHypercube() {
         if (isExpanded) return;
@@ -1147,12 +1258,16 @@ function initInteractiveCube() {
         entryAlpha = 0;
         camYaw = 0; camPitch = 0;
         targetYaw = 0; targetPitch = 0;
+        camZoom = 0; targetZoom = 0;
+        inEventHorizon = false;
+        horizonAlpha = 0;
 
         document.body.classList.add('hypercube-active');
         hyperCanvas.classList.add('active');
 
         document.addEventListener('mousemove', onHyperMouse);
         document.addEventListener('keydown', onHyperKey);
+        document.addEventListener('wheel', onHyperWheel, { passive: false });
         window.addEventListener('resize', onHyperResize);
 
         renderLoop();
@@ -1168,6 +1283,7 @@ function initInteractiveCube() {
 
         document.removeEventListener('mousemove', onHyperMouse);
         document.removeEventListener('keydown', onHyperKey);
+        document.removeEventListener('wheel', onHyperWheel);
         window.removeEventListener('resize', onHyperResize);
 
         if (hyperAnimId) cancelAnimationFrame(hyperAnimId);
@@ -1184,7 +1300,22 @@ function initInteractiveCube() {
     }
 
     function onHyperKey(e) {
-        if (e.key === 'Escape') exitHypercube();
+        if (e.key === 'Escape') {
+            if (inEventHorizon) {
+                // Back out of event horizon to hypercube
+                inEventHorizon = false;
+                targetZoom = MAX_ZOOM - 0.5;
+            } else {
+                exitHypercube();
+            }
+        }
+    }
+
+    function onHyperWheel(e) {
+        e.preventDefault();
+        if (inEventHorizon) return;
+        targetZoom += e.deltaY * 0.003;
+        targetZoom = Math.max(0, Math.min(MAX_ZOOM, targetZoom));
     }
 
     function onHyperResize() {
@@ -1203,6 +1334,24 @@ function initInteractiveCube() {
         // Smooth camera
         camYaw += (targetYaw - camYaw) * 0.05;
         camPitch += (targetPitch - camPitch) * 0.05;
+        camZoom += (targetZoom - camZoom) * 0.04;
+
+        // Check event horizon threshold
+        if (camZoom >= MAX_ZOOM - 0.05 && !inEventHorizon) {
+            inEventHorizon = true;
+            horizonAlpha = 0;
+        }
+
+        // ── EVENT HORIZON MODE ──
+        if (inEventHorizon) {
+            horizonAlpha = Math.min(1, horizonAlpha + 0.015);
+            renderEventHorizon(ctx, w, h, horizonAlpha);
+            hyperAnimId = requestAnimationFrame(renderLoop);
+            return;
+        }
+
+        // Fade geometries as we approach the sphere
+        const approachFade = Math.max(0, 1 - (camZoom / MAX_ZOOM) * 0.6);
 
         // Dark void background
         ctx.fillStyle = '#030308';
@@ -1230,7 +1379,7 @@ function initInteractiveCube() {
             ctx.beginPath();
             ctx.moveTo(pa[0], pa[1]);
             ctx.lineTo(pb[0], pb[1]);
-            ctx.strokeStyle = `rgba(102,126,234,${(0.25 + pulse*0.15) * entryAlpha})`;
+            ctx.strokeStyle = `rgba(102,126,234,${(0.25 + pulse*0.15) * entryAlpha * approachFade})`;
             ctx.lineWidth = 1.5;
             ctx.stroke();
         });
@@ -1252,7 +1401,7 @@ function initInteractiveCube() {
             ctx.beginPath();
             ctx.moveTo(pa[0], pa[1]);
             ctx.lineTo(pb[0], pb[1]);
-            ctx.strokeStyle = `rgba(0,245,212,${(0.2 + pulse*0.1) * entryAlpha})`;
+            ctx.strokeStyle = `rgba(0,245,212,${(0.2 + pulse*0.1) * entryAlpha * approachFade})`;
             ctx.lineWidth = 1;
             ctx.stroke();
         });
@@ -1266,7 +1415,7 @@ function initInteractiveCube() {
             ctx.beginPath();
             ctx.moveTo(pa[0], pa[1]);
             ctx.lineTo(pb[0], pb[1]);
-            ctx.strokeStyle = `rgba(118,75,162,${(0.06 + pulse*0.04) * entryAlpha})`;
+            ctx.strokeStyle = `rgba(118,75,162,${(0.06 + pulse*0.04) * entryAlpha * approachFade})`;
             ctx.lineWidth = 0.5;
             ctx.stroke();
         }
@@ -1278,8 +1427,11 @@ function initInteractiveCube() {
         const sphereRotA = hyperTime * 0.25;
         const sphereRotB = hyperTime * 0.15;
 
+        // Sphere intensifies as we approach
+        const sphereIntensity = 1 + (camZoom / MAX_ZOOM) * 3;
+
         ctx.shadowColor = '#764ba2';
-        ctx.shadowBlur = 6 * entryAlpha;
+        ctx.shadowBlur = (6 + camZoom * 4) * entryAlpha;
 
         // Latitude rings
         for (let ring = 1; ring < sphereRings; ring++) {
@@ -1297,8 +1449,8 @@ function initInteractiveCube() {
                     ctx.beginPath();
                     ctx.moveTo(prevP[0], prevP[1]);
                     ctx.lineTo(sp[0], sp[1]);
-                    ctx.strokeStyle = `rgba(118,75,162,${(0.12 + pulse*0.08) * entryAlpha})`;
-                    ctx.lineWidth = 0.6;
+                    ctx.strokeStyle = `rgba(118,75,162,${Math.min(1, (0.12 + pulse*0.08) * entryAlpha * sphereIntensity)})`;
+                    ctx.lineWidth = 0.6 + camZoom * 0.15;
                     ctx.stroke();
                 }
                 prevP = sp;
@@ -1321,8 +1473,8 @@ function initInteractiveCube() {
                     ctx.beginPath();
                     ctx.moveTo(prevP[0], prevP[1]);
                     ctx.lineTo(sp[0], sp[1]);
-                    ctx.strokeStyle = `rgba(118,75,162,${(0.08 + pulse*0.06) * entryAlpha})`;
-                    ctx.lineWidth = 0.4;
+                    ctx.strokeStyle = `rgba(118,75,162,${Math.min(1, (0.08 + pulse*0.06) * entryAlpha * sphereIntensity)})`;
+                    ctx.lineWidth = 0.4 + camZoom * 0.1;
                     ctx.stroke();
                 }
                 prevP = sp;
