@@ -1052,85 +1052,395 @@ function initInteractiveCube() {
     cubeContainer.addEventListener('touchmove', onTouchMove, { passive: false });
     cubeContainer.addEventListener('touchend', onTouchEnd);
     
-    // ── Immersive Cube Expansion on Triple-Click ──
-    // Three fast clicks → cube fills the viewport, you step inside.
+    // ── HYPERCUBE INTERIOR — Full 3D Immersion ──
+    // Three fast clicks → the UI vanishes. You're inside a wireframe hypercube.
+    // Mouse controls your gaze. Find the ⚛ portal to escape.
     let cubeClickCount = 0;
     let cubeClickTimer = null;
     let isExpanded = false;
 
-    // Overlay backdrop
-    const overlay = document.createElement('div');
-    overlay.className = 'cube-immersive-overlay';
-    document.body.appendChild(overlay);
+    // Full-screen takeover canvas
+    const hyperCanvas = document.createElement('canvas');
+    hyperCanvas.className = 'hypercube-interior';
+    document.body.appendChild(hyperCanvas);
 
-    // Close button (inside the expanded state)
-    const closeBtn = document.createElement('button');
-    closeBtn.className = 'cube-immersive-close';
-    closeBtn.innerHTML = '&times;';
-    closeBtn.title = 'Exit cube';
-    cubeContainer.appendChild(closeBtn);
+    // Exit hint (appears after a few seconds)
+    const exitHint = document.createElement('div');
+    exitHint.className = 'hypercube-hint';
+    exitHint.textContent = 'find the \u269b to escape';
+    document.body.appendChild(exitHint);
 
-    // Interior ambient particles
-    const interiorCanvas = document.createElement('canvas');
-    interiorCanvas.className = 'cube-interior-canvas';
-    cubeContainer.appendChild(interiorCanvas);
+    let hyperCtx = null;
+    let hyperAnimId = null;
+    let camYaw = 0, camPitch = 0;
+    let targetYaw = 0, targetPitch = 0;
+    let hyperTime = 0;
+    let entryAlpha = 0;  // fade-in progress
 
-    function enterCube() {
-        if (isExpanded) return;
-        isExpanded = true;
-
-        // Store original rect for smooth transition origin
-        const rect = cubeContainer.getBoundingClientRect();
-        cubeContainer.style.setProperty('--cube-origin-x', rect.left + rect.width / 2 + 'px');
-        cubeContainer.style.setProperty('--cube-origin-y', rect.top + rect.height / 2 + 'px');
-
-        // Activate expanded state
-        overlay.classList.add('active');
-        cubeContainer.classList.add('cube-expanded');
-        document.body.classList.add('cube-immersive-active');
-
-        // Slow down rotation for immersive feel
-        velocityY = 0.08;
-
-        // Start interior particles
-        startInteriorParticles();
-
-        // Enlarge faces for "inside" perspective
-        requestAnimationFrame(() => {
-            cube.querySelectorAll('.face').forEach(face => {
-                face.classList.add('face-immersive');
-            });
-        });
+    // ── 3D Math ──
+    function rotY(p, a) {
+        const c = Math.cos(a), s = Math.sin(a);
+        return [p[0]*c - p[2]*s, p[1], p[0]*s + p[2]*c];
+    }
+    function rotX(p, a) {
+        const c = Math.cos(a), s = Math.sin(a);
+        return [p[0], p[1]*c - p[2]*s, p[1]*s + p[2]*c];
+    }
+    function proj(p, w, h) {
+        const z = p[2] + 5;
+        if (z <= 0.1) return null;
+        const fov = 600;
+        return [w/2 + (p[0]*fov)/z, h/2 + (p[1]*fov)/z, z];
     }
 
-    function exitCube() {
+    // ── Geometry: outer room + inner rotating cube (tesseract) ──
+    const S = 3.5;  // outer cube half-size
+    const outerV = [
+        [-S,-S,-S],[S,-S,-S],[S,S,-S],[-S,S,-S],
+        [-S,-S, S],[S,-S, S],[S,S, S],[-S,S, S]
+    ];
+    const s2 = 1.0;  // inner cube half-size
+    const innerV = [
+        [-s2,-s2,-s2],[s2,-s2,-s2],[s2,s2,-s2],[-s2,s2,-s2],
+        [-s2,-s2, s2],[s2,-s2, s2],[s2,s2, s2],[-s2,s2, s2]
+    ];
+    const edges = [
+        [0,1],[1,2],[2,3],[3,0],
+        [4,5],[5,6],[6,7],[7,4],
+        [0,4],[1,5],[2,6],[3,7]
+    ];
+
+    // Face definitions — icon, label, position, and exit flag
+    const cubeFaces = [
+        { pos: [0,0,-S], icon: '\ud83d\udc0d', label: 'Python AI' },
+        { pos: [0,0, S], icon: 'C++', label: 'Engine' },
+        { pos: [ S,0,0], icon: 'C#', label: 'Interface' },
+        { pos: [-S,0,0], icon: '\ud83d\udee1\ufe0f', label: 'Security' },
+        { pos: [0,-S,0], icon: '\u269b', label: 'AIOS \u2014 EXIT', isExit: true },
+        { pos: [0, S,0], icon: '\ud83e\udde0', label: 'AI Core' }
+    ];
+
+    // Interior particles
+    let hParticles = [];
+
+    function spawnParticles() {
+        hParticles = [];
+        for (let i = 0; i < 100; i++) {
+            hParticles.push({
+                x: (Math.random()-0.5)*S*1.6, y: (Math.random()-0.5)*S*1.6,
+                z: (Math.random()-0.5)*S*1.6,
+                vx: (Math.random()-0.5)*0.006, vy: (Math.random()-0.5)*0.006,
+                vz: (Math.random()-0.5)*0.006,
+                sz: Math.random()*2+0.5,
+                col: ['#667eea','#764ba2','#00f5d4','#5a67d8','#f72585'][Math.floor(Math.random()*5)]
+            });
+        }
+    }
+
+    // ── Grid floor (spatial grounding) ──
+    function drawGrid(ctx, w, h) {
+        const gridY = S * 0.95;  // floor level
+        const gridLines = 12;
+        const step = S * 2 / gridLines;
+        ctx.strokeStyle = 'rgba(102, 126, 234, 0.06)';
+        ctx.lineWidth = 0.5;
+        for (let i = 0; i <= gridLines; i++) {
+            const offset = -S + i * step;
+            // lines along Z
+            const a1 = proj(rotX(rotY([offset, gridY, -S], -camYaw), -camPitch), w, h);
+            const a2 = proj(rotX(rotY([offset, gridY,  S], -camYaw), -camPitch), w, h);
+            if (a1 && a2) { ctx.beginPath(); ctx.moveTo(a1[0],a1[1]); ctx.lineTo(a2[0],a2[1]); ctx.stroke(); }
+            // lines along X
+            const b1 = proj(rotX(rotY([-S, gridY, offset], -camYaw), -camPitch), w, h);
+            const b2 = proj(rotX(rotY([ S, gridY, offset], -camYaw), -camPitch), w, h);
+            if (b1 && b2) { ctx.beginPath(); ctx.moveTo(b1[0],b1[1]); ctx.lineTo(b2[0],b2[1]); ctx.stroke(); }
+        }
+    }
+
+    // ── Scanline overlay ──
+    function drawScanlines(ctx, w, h) {
+        ctx.fillStyle = 'rgba(255,255,255,0.008)';
+        for (let y = 0; y < h; y += 4) {
+            ctx.fillRect(0, y, w, 1);
+        }
+    }
+
+    // ── Transform helper ──
+    function xform(p, w, h) {
+        return proj(rotX(rotY(p, -camYaw), -camPitch), w, h);
+    }
+
+    // ── Enter ──
+    function enterHypercube() {
+        if (isExpanded) return;
+        isExpanded = true;
+        hyperCanvas.width = window.innerWidth;
+        hyperCanvas.height = window.innerHeight;
+        hyperCtx = hyperCanvas.getContext('2d');
+        hyperTime = 0;
+        entryAlpha = 0;
+        camYaw = 0; camPitch = 0;
+        targetYaw = 0; targetPitch = 0;
+        spawnParticles();
+
+        document.body.classList.add('hypercube-active');
+        hyperCanvas.classList.add('active');
+
+        // Hint after 4 seconds
+        setTimeout(() => { if (isExpanded) exitHint.classList.add('visible'); }, 4000);
+
+        document.addEventListener('mousemove', onHyperMouse);
+        document.addEventListener('click', onHyperClick);
+        document.addEventListener('keydown', onHyperKey);
+        window.addEventListener('resize', onHyperResize);
+
+        renderLoop();
+    }
+
+    // ── Exit ──
+    function exitHypercube() {
         if (!isExpanded) return;
         isExpanded = false;
 
-        overlay.classList.remove('active');
-        cubeContainer.classList.remove('cube-expanded');
-        document.body.classList.remove('cube-immersive-active');
+        document.body.classList.remove('hypercube-active');
+        hyperCanvas.classList.remove('active');
+        exitHint.classList.remove('visible');
 
-        // Restore normal spin
+        document.removeEventListener('mousemove', onHyperMouse);
+        document.removeEventListener('click', onHyperClick);
+        document.removeEventListener('keydown', onHyperKey);
+        window.removeEventListener('resize', onHyperResize);
+
+        if (hyperAnimId) cancelAnimationFrame(hyperAnimId);
+        hyperAnimId = null;
+
         velocityY = DEFAULT_VELOCITY_Y;
         rotationX = DEFAULT_ROTATION_X;
-
-        // Remove face immersive class
-        cube.querySelectorAll('.face').forEach(face => {
-            face.classList.remove('face-immersive');
-        });
-
-        // Stop interior particles
-        stopInteriorParticles();
     }
 
+    // ── Input ──
+    function onHyperMouse(e) {
+        targetYaw  = ((e.clientX / window.innerWidth) - 0.5) * Math.PI * 1.6;
+        targetPitch = ((e.clientY / window.innerHeight) - 0.5) * Math.PI * 0.9;
+    }
+
+    function onHyperClick(e) {
+        // Check if click hits the exit portal
+        const w = hyperCanvas.width, h = hyperCanvas.height;
+        const exit = cubeFaces.find(f => f.isExit);
+        if (!exit) return;
+        const p = xform(exit.pos, w, h);
+        if (!p || p[2] <= 0) return;
+        const dx = e.clientX - p[0], dy = e.clientY - p[1];
+        if (Math.sqrt(dx*dx + dy*dy) < 70) {
+            exitHypercube();
+        }
+    }
+
+    function onHyperKey(e) {
+        if (e.key === 'Escape') exitHypercube();
+    }
+
+    function onHyperResize() {
+        hyperCanvas.width = window.innerWidth;
+        hyperCanvas.height = window.innerHeight;
+    }
+
+    // ── Render Loop ──
+    function renderLoop() {
+        if (!isExpanded) return;
+        const ctx = hyperCtx;
+        const w = hyperCanvas.width, h = hyperCanvas.height;
+        hyperTime += 0.016;
+        if (entryAlpha < 1) entryAlpha = Math.min(1, entryAlpha + 0.02);
+
+        // Smooth camera
+        camYaw += (targetYaw - camYaw) * 0.05;
+        camPitch += (targetPitch - camPitch) * 0.05;
+
+        // Dark void background
+        ctx.fillStyle = '#030308';
+        ctx.fillRect(0, 0, w, h);
+
+        // Subtle radial vignette
+        const vg = ctx.createRadialGradient(w/2, h/2, w*0.1, w/2, h/2, w*0.7);
+        vg.addColorStop(0, 'rgba(102,126,234,0.02)');
+        vg.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = vg;
+        ctx.fillRect(0, 0, w, h);
+
+        const pulse = 0.5 + 0.5 * Math.sin(hyperTime * 2);
+
+        // ── Floor grid ──
+        drawGrid(ctx, w, h);
+
+        // ── Outer cube wireframe (the room) ──
+        ctx.shadowColor = '#667eea';
+        ctx.shadowBlur = 10 * entryAlpha;
+        edges.forEach(([a, b]) => {
+            const pa = xform(outerV[a], w, h);
+            const pb = xform(outerV[b], w, h);
+            if (!pa || !pb) return;
+            ctx.beginPath();
+            ctx.moveTo(pa[0], pa[1]);
+            ctx.lineTo(pb[0], pb[1]);
+            ctx.strokeStyle = `rgba(102,126,234,${(0.25 + pulse*0.15) * entryAlpha})`;
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+        });
+
+        // ── Inner cube (rotating tesseract core) ──
+        const ia = hyperTime * 0.4;
+        const rotInner = innerV.map(v => {
+            let p = rotY(v, ia);
+            p = rotX(p, ia * 0.6);
+            return p;
+        });
+
+        ctx.shadowColor = '#00f5d4';
+        ctx.shadowBlur = 8 * entryAlpha;
+        edges.forEach(([a, b]) => {
+            const pa = xform(rotInner[a], w, h);
+            const pb = xform(rotInner[b], w, h);
+            if (!pa || !pb) return;
+            ctx.beginPath();
+            ctx.moveTo(pa[0], pa[1]);
+            ctx.lineTo(pb[0], pb[1]);
+            ctx.strokeStyle = `rgba(0,245,212,${(0.2 + pulse*0.1) * entryAlpha})`;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        });
+
+        // ── Hyper-connections: outer vertices → inner vertices ──
+        ctx.shadowBlur = 0;
+        for (let i = 0; i < 8; i++) {
+            const pa = xform(outerV[i], w, h);
+            const pb = xform(rotInner[i], w, h);
+            if (!pa || !pb) continue;
+            ctx.beginPath();
+            ctx.moveTo(pa[0], pa[1]);
+            ctx.lineTo(pb[0], pb[1]);
+            ctx.strokeStyle = `rgba(118,75,162,${(0.06 + pulse*0.04) * entryAlpha})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+        }
+
+        // ── Face icons & labels ──
+        ctx.shadowBlur = 0;
+        cubeFaces.forEach(face => {
+            const p = xform(face.pos, w, h);
+            if (!p || p[2] <= 0.3) return;
+            const scale = Math.min(600 / p[2], 50);
+            const isExit = face.isExit;
+
+            // Exit portal glow
+            if (isExit) {
+                const ep = 0.5 + 0.5 * Math.sin(hyperTime * 3.5);
+                ctx.beginPath();
+                ctx.arc(p[0], p[1], 35 + ep * 20, 0, Math.PI * 2);
+                const grd = ctx.createRadialGradient(p[0], p[1], 0, p[0], p[1], 55);
+                grd.addColorStop(0, `rgba(0,245,212,${0.15 * entryAlpha})`);
+                grd.addColorStop(1, 'rgba(0,245,212,0)');
+                ctx.fillStyle = grd;
+                ctx.fill();
+
+                // Ring
+                ctx.beginPath();
+                ctx.arc(p[0], p[1], 30 + ep * 8, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(0,245,212,${(0.3 + ep*0.3) * entryAlpha})`;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+
+            // Icon
+            ctx.font = `${scale * 0.7}px Inter, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = isExit ? '#00f5d4' : '#667eea';
+            ctx.shadowBlur = isExit ? 20 : 6;
+            ctx.fillStyle = isExit
+                ? `rgba(0,245,212,${(0.8 + 0.2*Math.sin(hyperTime*3)) * entryAlpha})`
+                : `rgba(255,255,255,${0.45 * entryAlpha})`;
+            ctx.fillText(face.icon, p[0], p[1] - scale * 0.25);
+
+            // Label
+            ctx.font = `${Math.min(scale*0.28, 14)}px Inter, sans-serif`;
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = isExit
+                ? `rgba(0,245,212,${0.7 * entryAlpha})`
+                : `rgba(184,197,214,${0.3 * entryAlpha})`;
+            ctx.fillText(face.label, p[0], p[1] + scale * 0.35);
+        });
+
+        // ── Floating particles ──
+        ctx.shadowBlur = 0;
+        hParticles.forEach(pt => {
+            pt.x += pt.vx; pt.y += pt.vy; pt.z += pt.vz;
+            if (Math.abs(pt.x) > S) pt.vx *= -1;
+            if (Math.abs(pt.y) > S) pt.vy *= -1;
+            if (Math.abs(pt.z) > S) pt.vz *= -1;
+
+            const pp = xform([pt.x, pt.y, pt.z], w, h);
+            if (!pp || pp[2] <= 0) return;
+
+            const sz = (pt.sz * 300) / pp[2];
+            ctx.beginPath();
+            ctx.arc(pp[0], pp[1], Math.max(sz, 0.4), 0, Math.PI * 2);
+            ctx.fillStyle = pt.col;
+            ctx.globalAlpha = Math.min(0.5, 2.5 / pp[2]) * entryAlpha;
+            ctx.fill();
+        });
+        ctx.globalAlpha = 1;
+
+        // ── Particle connection lines ──
+        for (let i = 0; i < hParticles.length; i++) {
+            for (let j = i + 1; j < hParticles.length; j++) {
+                const a = hParticles[i], b = hParticles[j];
+                const dx = a.x - b.x, dy = a.y - b.y, dz = a.z - b.z;
+                const d = Math.sqrt(dx*dx + dy*dy + dz*dz);
+                if (d < 1.8) {
+                    const pa = xform([a.x, a.y, a.z], w, h);
+                    const pb = xform([b.x, b.y, b.z], w, h);
+                    if (!pa || !pb) continue;
+                    ctx.beginPath();
+                    ctx.moveTo(pa[0], pa[1]);
+                    ctx.lineTo(pb[0], pb[1]);
+                    ctx.strokeStyle = a.col;
+                    ctx.globalAlpha = (1 - d/1.8) * 0.08 * entryAlpha;
+                    ctx.lineWidth = 0.4;
+                    ctx.stroke();
+                }
+            }
+        }
+        ctx.globalAlpha = 1;
+
+        // ── Scanlines ──
+        drawScanlines(ctx, w, h);
+
+        // ── Crosshair ──
+        ctx.strokeStyle = `rgba(102,126,234,${0.12 * entryAlpha})`;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(w/2 - 15, h/2); ctx.lineTo(w/2 + 15, h/2);
+        ctx.moveTo(w/2, h/2 - 15); ctx.lineTo(w/2, h/2 + 15);
+        ctx.stroke();
+
+        // Small dot at center
+        ctx.beginPath();
+        ctx.arc(w/2, h/2, 2, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(102,126,234,${0.2 * entryAlpha})`;
+        ctx.fill();
+
+        hyperAnimId = requestAnimationFrame(renderLoop);
+    }
+
+    // ── Triple-click detection ──
     cubeContainer.addEventListener('click', (e) => {
-        if (isExpanded) return; // Inside expanded mode, clicks are for dragging/close
+        if (isExpanded) return;
         cubeClickCount++;
         clearTimeout(cubeClickTimer);
         cubeClickTimer = setTimeout(() => { cubeClickCount = 0; }, 1200);
 
-        // Sensing pulse at 2 clicks
         if (cubeClickCount === 2) {
             cubeContainer.classList.add('cube-sensing');
             setTimeout(() => cubeContainer.classList.remove('cube-sensing'), 800);
@@ -1138,99 +1448,14 @@ function initInteractiveCube() {
 
         if (cubeClickCount >= 3) {
             cubeClickCount = 0;
-            enterCube();
+            enterHypercube();
         }
     });
-
-    closeBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        exitCube();
-    });
-    overlay.addEventListener('click', exitCube);
-
-    // ESC to exit
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && isExpanded) exitCube();
-    });
-
-    // ── Interior Particle System ──
-    let interiorParticles = [];
-    let interiorAnimId = null;
-
-    function startInteriorParticles() {
-        const ctx = interiorCanvas.getContext('2d');
-        interiorCanvas.width = window.innerWidth;
-        interiorCanvas.height = window.innerHeight;
-        interiorParticles = [];
-
-        // Spawn ambient particles — floating inside the cube
-        for (let i = 0; i < 60; i++) {
-            interiorParticles.push({
-                x: Math.random() * interiorCanvas.width,
-                y: Math.random() * interiorCanvas.height,
-                vx: (Math.random() - 0.5) * 0.4,
-                vy: (Math.random() - 0.5) * 0.4,
-                size: Math.random() * 2.5 + 0.5,
-                alpha: Math.random() * 0.4 + 0.1,
-                color: ['#667eea', '#764ba2', '#00f5d4', '#5a67d8'][Math.floor(Math.random() * 4)]
-            });
-        }
-
-        function drawInterior() {
-            ctx.clearRect(0, 0, interiorCanvas.width, interiorCanvas.height);
-            interiorParticles.forEach(p => {
-                p.x += p.vx;
-                p.y += p.vy;
-                if (p.x < 0) p.x = interiorCanvas.width;
-                if (p.x > interiorCanvas.width) p.x = 0;
-                if (p.y < 0) p.y = interiorCanvas.height;
-                if (p.y > interiorCanvas.height) p.y = 0;
-
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                ctx.fillStyle = p.color;
-                ctx.globalAlpha = p.alpha;
-                ctx.fill();
-            });
-            ctx.globalAlpha = 1;
-
-            // Draw faint connection lines between nearby particles
-            for (let i = 0; i < interiorParticles.length; i++) {
-                for (let j = i + 1; j < interiorParticles.length; j++) {
-                    const a = interiorParticles[i];
-                    const b = interiorParticles[j];
-                    const dx = a.x - b.x;
-                    const dy = a.y - b.y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < 120) {
-                        ctx.beginPath();
-                        ctx.moveTo(a.x, a.y);
-                        ctx.lineTo(b.x, b.y);
-                        ctx.strokeStyle = a.color;
-                        ctx.globalAlpha = (1 - dist / 120) * 0.12;
-                        ctx.lineWidth = 0.5;
-                        ctx.stroke();
-                    }
-                }
-            }
-            ctx.globalAlpha = 1;
-            interiorAnimId = requestAnimationFrame(drawInterior);
-        }
-        drawInterior();
-    }
-
-    function stopInteriorParticles() {
-        if (interiorAnimId) cancelAnimationFrame(interiorAnimId);
-        interiorAnimId = null;
-        interiorParticles = [];
-        const ctx = interiorCanvas.getContext('2d');
-        ctx.clearRect(0, 0, interiorCanvas.width, interiorCanvas.height);
-    }
 
     // Start animation loop
     animate();
     
-    console.log('Interactive cube initialized (immersive expansion enabled)');
+    console.log('Interactive cube initialized (hypercube interior enabled)');
 }
 
 // ========================================
