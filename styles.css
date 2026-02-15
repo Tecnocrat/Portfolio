@@ -768,41 +768,10 @@ body.hypercube-active {
     overflow: hidden;
 }
 
-body.hypercube-active > *:not(.hypercube-interior):not(.hypercube-hint) {
+body.hypercube-active > *:not(.hypercube-interior) {
     opacity: 0 !important;
     pointer-events: none !important;
     transition: opacity 0.6s ease;
-}
-
-/* Exit hint */
-.hypercube-hint {
-    display: none;
-    position: fixed;
-    bottom: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 100000;
-    font-family: 'Inter', monospace;
-    font-size: 0.85rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: rgba(0, 245, 212, 0);
-    pointer-events: none;
-    transition: color 1.5s ease;
-}
-
-body.hypercube-active .hypercube-hint {
-    display: block;
-}
-
-.hypercube-hint.visible {
-    color: rgba(0, 245, 212, 0.4);
-    animation: hintPulse 3s ease-in-out infinite;
-}
-
-@keyframes hintPulse {
-    0%, 100% { color: rgba(0, 245, 212, 0.25); }
-    50% { color: rgba(0, 245, 212, 0.55); }
 }
 
 /* Sensing pulse — 2 clicks, the cube notices */

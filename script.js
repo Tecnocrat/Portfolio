@@ -1052,9 +1052,8 @@ function initInteractiveCube() {
     cubeContainer.addEventListener('touchmove', onTouchMove, { passive: false });
     cubeContainer.addEventListener('touchend', onTouchEnd);
     
-    // ── HYPERCUBE INTERIOR — Full 3D Immersion ──
-    // Three fast clicks → the UI vanishes. You're inside a wireframe hypercube.
-    // Mouse controls your gaze. Find the ⚛ portal to escape.
+    // ── HYPERCUBE INTERIOR — Tachyonic Void ──
+    // Three fast clicks → the UI vanishes. You're inside.
     let cubeClickCount = 0;
     let cubeClickTimer = null;
     let isExpanded = false;
@@ -1063,12 +1062,6 @@ function initInteractiveCube() {
     const hyperCanvas = document.createElement('canvas');
     hyperCanvas.className = 'hypercube-interior';
     document.body.appendChild(hyperCanvas);
-
-    // Exit hint (appears after a few seconds)
-    const exitHint = document.createElement('div');
-    exitHint.className = 'hypercube-hint';
-    exitHint.textContent = 'find the \u269b to escape';
-    document.body.appendChild(exitHint);
 
     let hyperCtx = null;
     let hyperAnimId = null;
@@ -1108,16 +1101,6 @@ function initInteractiveCube() {
         [0,1],[1,2],[2,3],[3,0],
         [4,5],[5,6],[6,7],[7,4],
         [0,4],[1,5],[2,6],[3,7]
-    ];
-
-    // Face definitions — icon, label, position, and exit flag
-    const cubeFaces = [
-        { pos: [0,0,-S], icon: '\ud83d\udc0d', label: 'Python AI' },
-        { pos: [0,0, S], icon: 'C++', label: 'Engine' },
-        { pos: [ S,0,0], icon: 'C#', label: 'Interface' },
-        { pos: [-S,0,0], icon: '\ud83d\udee1\ufe0f', label: 'Security' },
-        { pos: [0,-S,0], icon: '\u269b', label: 'AIOS \u2014 EXIT', isExit: true },
-        { pos: [0, S,0], icon: '\ud83e\udde0', label: 'AI Core' }
     ];
 
     // ── Grid floor (spatial grounding) ──
@@ -1168,11 +1151,7 @@ function initInteractiveCube() {
         document.body.classList.add('hypercube-active');
         hyperCanvas.classList.add('active');
 
-        // Hint after 4 seconds
-        setTimeout(() => { if (isExpanded) exitHint.classList.add('visible'); }, 4000);
-
         document.addEventListener('mousemove', onHyperMouse);
-        document.addEventListener('click', onHyperClick);
         document.addEventListener('keydown', onHyperKey);
         window.addEventListener('resize', onHyperResize);
 
@@ -1186,10 +1165,8 @@ function initInteractiveCube() {
 
         document.body.classList.remove('hypercube-active');
         hyperCanvas.classList.remove('active');
-        exitHint.classList.remove('visible');
 
         document.removeEventListener('mousemove', onHyperMouse);
-        document.removeEventListener('click', onHyperClick);
         document.removeEventListener('keydown', onHyperKey);
         window.removeEventListener('resize', onHyperResize);
 
@@ -1204,19 +1181,6 @@ function initInteractiveCube() {
     function onHyperMouse(e) {
         targetYaw  = ((e.clientX / window.innerWidth) - 0.5) * Math.PI * 1.6;
         targetPitch = ((e.clientY / window.innerHeight) - 0.5) * Math.PI * 0.9;
-    }
-
-    function onHyperClick(e) {
-        // Check if click hits the exit portal
-        const w = hyperCanvas.width, h = hyperCanvas.height;
-        const exit = cubeFaces.find(f => f.isExit);
-        if (!exit) return;
-        const p = xform(exit.pos, w, h);
-        if (!p || p[2] <= 0) return;
-        const dx = e.clientX - p[0], dy = e.clientY - p[1];
-        if (Math.sqrt(dx*dx + dy*dy) < 70) {
-            exitHypercube();
-        }
     }
 
     function onHyperKey(e) {
@@ -1306,53 +1270,6 @@ function initInteractiveCube() {
             ctx.lineWidth = 0.5;
             ctx.stroke();
         }
-
-        // ── Face icons & labels ──
-        ctx.shadowBlur = 0;
-        cubeFaces.forEach(face => {
-            const p = xform(face.pos, w, h);
-            if (!p || p[2] <= 0.3) return;
-            const scale = Math.min(600 / p[2], 50);
-            const isExit = face.isExit;
-
-            // Exit portal glow
-            if (isExit) {
-                const ep = 0.5 + 0.5 * Math.sin(hyperTime * 3.5);
-                ctx.beginPath();
-                ctx.arc(p[0], p[1], 35 + ep * 20, 0, Math.PI * 2);
-                const grd = ctx.createRadialGradient(p[0], p[1], 0, p[0], p[1], 55);
-                grd.addColorStop(0, `rgba(0,245,212,${0.15 * entryAlpha})`);
-                grd.addColorStop(1, 'rgba(0,245,212,0)');
-                ctx.fillStyle = grd;
-                ctx.fill();
-
-                // Ring
-                ctx.beginPath();
-                ctx.arc(p[0], p[1], 30 + ep * 8, 0, Math.PI * 2);
-                ctx.strokeStyle = `rgba(0,245,212,${(0.3 + ep*0.3) * entryAlpha})`;
-                ctx.lineWidth = 1;
-                ctx.stroke();
-            }
-
-            // Icon
-            ctx.font = `${scale * 0.7}px Inter, sans-serif`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.shadowColor = isExit ? '#00f5d4' : '#667eea';
-            ctx.shadowBlur = isExit ? 20 : 6;
-            ctx.fillStyle = isExit
-                ? `rgba(0,245,212,${(0.8 + 0.2*Math.sin(hyperTime*3)) * entryAlpha})`
-                : `rgba(255,255,255,${0.45 * entryAlpha})`;
-            ctx.fillText(face.icon, p[0], p[1] - scale * 0.25);
-
-            // Label
-            ctx.font = `${Math.min(scale*0.28, 14)}px Inter, sans-serif`;
-            ctx.shadowBlur = 0;
-            ctx.fillStyle = isExit
-                ? `rgba(0,245,212,${0.7 * entryAlpha})`
-                : `rgba(184,197,214,${0.3 * entryAlpha})`;
-            ctx.fillText(face.label, p[0], p[1] + scale * 0.35);
-        });
 
         // ── Scanlines ──
         drawScanlines(ctx, w, h);
