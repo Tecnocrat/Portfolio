@@ -536,10 +536,10 @@ function initTypingAnimation() {
     let phrases = [
         'init AIOS.core()',
         'loading multi_agent_system...',
-        'Φ(consciousness) → ∞',
-        'bridge.connect(reality)',
-        'observer.watch(∃₀→∃ₙ)',
-        'security_supercell.activate()'
+        'docker compose up -d',
+        'bridge.connect(":8000")',
+        'system.health_check()',
+        'security.validate_all()'
     ];
     
     // Enhance with surface data if available
@@ -552,11 +552,11 @@ function initTypingAnimation() {
         phrases = [
             'init AIOS.core()',
             `runtime_tools: ${TecnocratSurface.stats.diagnosticTools}`,
-            'Φ(consciousness) → ∞',
-            `security: ${TecnocratSurface.stats.securityScore}%`,
-            'observer.watch(∃₀→∃ₙ)',
+            'docker compose up -d --scale agent=3',
+            `security_score: ${TecnocratSurface.stats.securityScore}%`,
+            'system.health_check() // all green',
             `agents: [${TecnocratSurface.surface.evolution.exposed[0].displayContent.agents.join(', ')}]`,
-            'bridge.connect(reality)',
+            'bridge.connect(":8000")',
             'tecnocrat.surface.sync()'
         ];
     }

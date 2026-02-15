@@ -1114,6 +1114,19 @@
     // ═══════════════════════════════════════════════════════
 
     const INFO_REGISTRY = {
+        '.typing-container': {
+            title: 'System Terminal',
+            icon: '💻',
+            body: 'A simulated terminal prompt cycling through real AIOS system commands. Each phrase represents an actual operation in the AIOS platform — from initializing the core engine to querying live agent status and security metrics.',
+            details: [
+                { label: 'Prompt', value: '$ — standard shell prefix' },
+                { label: 'Source', value: 'Live surface API data when available' },
+                { label: 'Cycle', value: '8 commands, typed and erased in loop' },
+                { label: 'Speed', value: '100ms type / 50ms delete / 2s pause' },
+                { label: 'Data Binding', value: 'Reads from TecnocratSurface stats object' }
+            ],
+            accentColor: '#00f5d4'
+        },
         '.logo-text': {
             title: 'Tecnocrat',
             icon: '⚛',
