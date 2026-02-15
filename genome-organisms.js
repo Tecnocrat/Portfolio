@@ -105,7 +105,9 @@
                 this.opacity = Math.min(this.targetOpacity, (this.age / 2000) * this.targetOpacity);
             } else if (this.age > this.maxAge - 3000) {
                 this.state = 'fading';
-                this.opacity = Math.max(0, ((this.maxAge - this.age) / 3000) * this.targetOpacity);
+                const fadeWindow = this.trappedInCube ? 8000 : 3000;
+                const fadeStart = this.maxAge - fadeWindow;
+                this.opacity = Math.max(0, ((this.maxAge - this.age) / fadeWindow) * this.targetOpacity);
                 if (this.age >= this.maxAge) { this.alive = false; return; }
             } else {
                 this.state = 'mature';
@@ -181,17 +183,32 @@
                 const attractRadius = 300;
 
                 if (this.trappedInCube) {
-                    // Orbit inside cube — confined, slower
-                    const orbitR = this._cubeRect.r * 0.6;
+                    // Orbit inside cube — confined, stable, organized
+                    const orbitR = this._cubeRect.r * 0.55;
+
+                    // Strong containment — organisms struggle to leave
                     if (dist > orbitR) {
-                        this.ax += (dx / dist) * 0.3;
-                        this.ay += (dy / dist) * 0.3;
+                        const pullBack = 0.5 + (dist - orbitR) * 0.01;
+                        this.ax += (dx / dist) * pullBack;
+                        this.ay += (dy / dist) * pullBack;
                     }
-                    // Orbital tangent
-                    this.ax += (-dy / Math.max(dist, 1)) * 0.04;
-                    this.ay += (dx / Math.max(dist, 1)) * 0.04;
-                    this.vx *= 0.99;
-                    this.vy *= 0.99;
+
+                    // Clean orbital tangent — organized circular motion
+                    const tangentStrength = 0.06;
+                    this.ax += (-dy / Math.max(dist, 1)) * tangentStrength;
+                    this.ay += (dx / Math.max(dist, 1)) * tangentStrength;
+
+                    // Heavy damping — stability
+                    this.vx *= 0.97;
+                    this.vy *= 0.97;
+
+                    // Reduce wander noise — more organized movement
+                    this.ax *= 0.4;
+                    this.ay *= 0.4;
+
+                    // Slower rotation inside — calm
+                    this.rotationSpeed *= 0.995;
+
                     this.targetOpacity = 0.35; // dimmer inside
                 } else if (dist < attractRadius && dist > 0) {
                     // Gravitational pull toward cube
@@ -202,9 +219,10 @@
                     this.ay += (dy / dist) * f;
 
                     // Chance to get trapped when very close
-                    if (dist < this._cubeRect.r * 0.7 && !this.trappedInCube && Math.random() < 0.002) {
+                    if (dist < this._cubeRect.r * 0.7 && !this.trappedInCube && Math.random() < 0.004) {
                         this.trappedInCube = true;
-                        this.maxAge = Math.max(this.maxAge, this.age + 15000);
+                        // Much longer persistence — organisms that enter rarely leave
+                        this.maxAge = Math.max(this.maxAge, this.age + 120000 + Math.random() * 60000);
                     }
                 }
             }
