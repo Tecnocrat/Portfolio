@@ -1941,3 +1941,301 @@ section {
 .genome-proximity {
     transition: box-shadow 0.4s, text-shadow 0.4s, transform 0.3s;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   ATOM CONSCIOUSNESS — ⚛ Logo Deep Layer
+   Dormant → stirring → guide → assistant
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Atom awareness states ── */
+.atom-aware { filter: brightness(1.3); }
+.atom-stirring {
+    animation: atom-stir 2s ease-in-out infinite !important;
+}
+@keyframes atom-stir {
+    0%, 100% { transform: scale(1); filter: brightness(1); }
+    30%     { transform: scale(1.15); filter: brightness(1.5) drop-shadow(0 0 8px #667eea); }
+    70%     { transform: scale(1.05); filter: brightness(1.2); }
+}
+
+.atom-pulse-deep {
+    animation: atom-deep-pulse 1.5s ease-in-out infinite !important;
+}
+@keyframes atom-deep-pulse {
+    0%, 100% { transform: scale(1); text-shadow: 0 0 8px rgba(102,126,234,0.6); }
+    50%      { transform: scale(1.3); text-shadow: 0 0 20px #00f5d4, 0 0 40px #667eea, 0 0 60px #764ba2; }
+}
+
+.atom-guide-active,
+.atom-assistant-active {
+    color: #00f5d4 !important;
+    text-shadow: 0 0 12px rgba(0,245,212,0.8), 0 0 24px rgba(0,245,212,0.4) !important;
+    animation: atom-active-breathe 3s ease-in-out infinite !important;
+}
+@keyframes atom-active-breathe {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    50%      { transform: scale(1.1) rotate(10deg); }
+}
+
+/* ── Atom Ripple ── */
+.atom-ripple {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 10px; height: 10px;
+    margin: -5px 0 0 -5px;
+    border-radius: 50%;
+    background: rgba(0, 245, 212, 0.4);
+    pointer-events: none;
+    animation: atom-ripple-expand 0.7s ease-out forwards;
+}
+@keyframes atom-ripple-expand {
+    0%   { transform: scale(0); opacity: 1; }
+    100% { transform: scale(8); opacity: 0; }
+}
+
+/* ── Atom Whisper ── */
+.atom-whisper {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: rgba(102, 126, 234, 0.7);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+    margin-top: 4px;
+    letter-spacing: 0.5px;
+}
+.atom-whisper.visible {
+    opacity: 1;
+    animation: atom-whisper-fade 4s ease-in-out;
+}
+@keyframes atom-whisper-fade {
+    0%   { opacity: 0; transform: translateX(-50%) translateY(4px); }
+    15%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+    85%  { opacity: 1; }
+    100% { opacity: 0.5; }
+}
+
+/* ── Guide Panel ── */
+.atom-guide-panel {
+    position: fixed;
+    top: 70px;
+    left: 20px;
+    width: 260px;
+    background: rgba(12, 12, 20, 0.95);
+    border: 1px solid rgba(102, 126, 234, 0.25);
+    border-radius: 16px;
+    backdrop-filter: blur(24px);
+    z-index: 10000;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-12px) scale(0.95);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 1px rgba(102, 126, 234, 0.3);
+}
+.atom-guide-panel.open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+.atom-guide-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(102, 126, 234, 0.15);
+}
+.atom-guide-icon {
+    font-size: 1.3rem;
+    color: #00f5d4;
+    text-shadow: 0 0 10px rgba(0, 245, 212, 0.5);
+}
+.atom-guide-title {
+    flex: 1;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.5px;
+}
+.atom-guide-close {
+    cursor: pointer;
+    color: rgba(255,255,255,0.4);
+    font-size: 1.2rem;
+    line-height: 1;
+    transition: color 0.2s;
+}
+.atom-guide-close:hover { color: #f72585; }
+
+.atom-guide-body {
+    padding: 8px;
+}
+.atom-guide-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #fff;
+    transition: background 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+.atom-guide-item:hover {
+    background: rgba(102, 126, 234, 0.12);
+    box-shadow: 0 0 12px rgba(102, 126, 234, 0.1);
+}
+.agi-icon { font-size: 1.1rem; }
+.agi-label {
+    flex: 1;
+    font-size: 0.82rem;
+    font-weight: 500;
+}
+.agi-hint {
+    font-size: 0.65rem;
+    color: rgba(102, 126, 234, 0.6);
+    font-family: 'JetBrains Mono', monospace;
+}
+.atom-guide-footer {
+    padding: 10px 16px;
+    border-top: 1px solid rgba(102, 126, 234, 0.1);
+    text-align: center;
+}
+.atom-guide-hint {
+    font-size: 0.6rem;
+    color: rgba(102, 126, 234, 0.5);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.5px;
+}
+
+/* ── Assistant Panel ── */
+.atom-assistant-panel {
+    position: fixed;
+    top: 70px;
+    left: 20px;
+    width: 320px;
+    max-height: 80vh;
+    background: rgba(10, 10, 18, 0.96);
+    border: 1px solid rgba(0, 245, 212, 0.2);
+    border-radius: 18px;
+    backdrop-filter: blur(24px);
+    z-index: 10000;
+    overflow: hidden;
+    overflow-y: auto;
+    opacity: 0;
+    transform: translateY(-16px) scale(0.93);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+    box-shadow:
+        0 12px 48px rgba(0, 0, 0, 0.7),
+        0 0 1px rgba(0, 245, 212, 0.3),
+        inset 0 1px 0 rgba(0, 245, 212, 0.08);
+}
+.atom-assistant-panel.open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.atom-asst-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px;
+    border-bottom: 1px solid rgba(0, 245, 212, 0.12);
+    background: rgba(0, 245, 212, 0.03);
+}
+.atom-asst-identity {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.atom-asst-symbol {
+    font-size: 1.6rem;
+    color: #00f5d4;
+    text-shadow: 0 0 14px rgba(0, 245, 212, 0.6);
+    animation: atom-active-breathe 3s ease-in-out infinite;
+}
+.atom-asst-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.3px;
+}
+.atom-asst-status {
+    font-size: 0.6rem;
+    color: #00f5d4;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+.atom-asst-close {
+    cursor: pointer;
+    color: rgba(255,255,255,0.4);
+    font-size: 1.3rem;
+    line-height: 1;
+    transition: color 0.2s;
+}
+.atom-asst-close:hover { color: #f72585; }
+
+.atom-asst-body {
+    padding: 16px 18px;
+}
+.atom-asst-msg {
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.85);
+    margin-bottom: 14px;
+    padding: 10px 12px;
+    background: rgba(102, 126, 234, 0.06);
+    border-left: 2px solid rgba(0, 245, 212, 0.3);
+    border-radius: 0 8px 8px 0;
+}
+.atom-asst-msg.whisper {
+    font-style: italic;
+    color: rgba(102, 126, 234, 0.6);
+    border-left-color: rgba(102, 126, 234, 0.2);
+    background: rgba(102, 126, 234, 0.03);
+    margin-top: 14px;
+}
+.atom-asst-section {
+    margin-bottom: 12px;
+}
+.atom-asst-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: rgba(0, 245, 212, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 4px;
+}
+.atom-asst-value {
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.5;
+}
+.atom-asst-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0, 245, 212, 0.15), transparent);
+    margin: 14px 0;
+}
+.atom-asst-footer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border-top: 1px solid rgba(0, 245, 212, 0.08);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.55rem;
+    color: rgba(102, 126, 234, 0.4);
+    letter-spacing: 0.5px;
+}
+.atom-asst-genome-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #00f5d4;
+    animation: pulse-sync 2s ease-in-out infinite;
+}
