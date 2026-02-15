@@ -704,10 +704,16 @@
             this.agentInfoCards = new AgentInfoCards(this);
             this.agentInfoCards.attach();
 
+            // Compute fixed cube anchor (scroll-independent)
+            this._computeCubeAnchor();
+
             window.addEventListener('mousemove', e => {
                 this.mouse = { x: e.clientX, y: e.clientY };
             });
-            window.addEventListener('resize', () => this._resize());
+            window.addEventListener('resize', () => {
+                this._resize();
+                this._computeCubeAnchor();
+            });
 
             // Initial burst — one of each type staggered
             ['nucleus','cell','cell','dna','consciousness','evolution','electron']
@@ -735,6 +741,25 @@
             this.canvas.width = window.innerWidth;
             this.canvas.height = window.innerHeight;
             for (const o of this.organisms) { o.w = this.canvas.width; o.h = this.canvas.height; }
+        }
+
+        // Compute cube anchor in fixed viewport space (scroll-independent).
+        // Uses the cube's page-absolute position, then maps to viewport center.
+        // Organisms orbit this fixed point regardless of scroll position.
+        _computeCubeAnchor() {
+            const cubeEl = document.querySelector('.cube-container');
+            if (!cubeEl) return;
+            const r = cubeEl.getBoundingClientRect();
+            // Page-absolute position (immune to scroll)
+            const pageX = r.left + window.scrollX + r.width / 2;
+            const pageY = r.top + window.scrollY + r.height / 2;
+            // Fixed viewport anchor — where the cube sits when hero is visible
+            // Clamp to viewport center area so organisms always have a home
+            this.cubeRect = {
+                cx: Math.min(Math.max(pageX, 100), window.innerWidth - 100),
+                cy: Math.min(Math.max(pageY, 100), window.innerHeight - 100),
+                r: Math.max(r.width, r.height) / 2
+            };
         }
 
         async _fetchGenome() {
@@ -800,16 +825,7 @@
             // Sleep awareness — integrate with existing organism system
             const sleeping = document.body.classList.contains('organism-sleeping');
 
-            // Track cube position for gravitational attraction
-            const cubeEl = document.querySelector('.cube-container');
-            if (cubeEl) {
-                const r = cubeEl.getBoundingClientRect();
-                this.cubeRect = {
-                    cx: r.left + r.width / 2,
-                    cy: r.top + r.height / 2,
-                    r: Math.max(r.width, r.height) / 2
-                };
-            }
+            // Cube anchor is scroll-independent (computed on init/resize)
 
             for (const o of this.organisms) {
                 if (sleeping) {
