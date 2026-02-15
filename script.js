@@ -1052,10 +1052,185 @@ function initInteractiveCube() {
     cubeContainer.addEventListener('touchmove', onTouchMove, { passive: false });
     cubeContainer.addEventListener('touchend', onTouchEnd);
     
+    // ── Immersive Cube Expansion on Triple-Click ──
+    // Three fast clicks → cube fills the viewport, you step inside.
+    let cubeClickCount = 0;
+    let cubeClickTimer = null;
+    let isExpanded = false;
+
+    // Overlay backdrop
+    const overlay = document.createElement('div');
+    overlay.className = 'cube-immersive-overlay';
+    document.body.appendChild(overlay);
+
+    // Close button (inside the expanded state)
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'cube-immersive-close';
+    closeBtn.innerHTML = '&times;';
+    closeBtn.title = 'Exit cube';
+    cubeContainer.appendChild(closeBtn);
+
+    // Interior ambient particles
+    const interiorCanvas = document.createElement('canvas');
+    interiorCanvas.className = 'cube-interior-canvas';
+    cubeContainer.appendChild(interiorCanvas);
+
+    function enterCube() {
+        if (isExpanded) return;
+        isExpanded = true;
+
+        // Store original rect for smooth transition origin
+        const rect = cubeContainer.getBoundingClientRect();
+        cubeContainer.style.setProperty('--cube-origin-x', rect.left + rect.width / 2 + 'px');
+        cubeContainer.style.setProperty('--cube-origin-y', rect.top + rect.height / 2 + 'px');
+
+        // Activate expanded state
+        overlay.classList.add('active');
+        cubeContainer.classList.add('cube-expanded');
+        document.body.classList.add('cube-immersive-active');
+
+        // Slow down rotation for immersive feel
+        velocityY = 0.08;
+
+        // Start interior particles
+        startInteriorParticles();
+
+        // Enlarge faces for "inside" perspective
+        requestAnimationFrame(() => {
+            cube.querySelectorAll('.face').forEach(face => {
+                face.classList.add('face-immersive');
+            });
+        });
+    }
+
+    function exitCube() {
+        if (!isExpanded) return;
+        isExpanded = false;
+
+        overlay.classList.remove('active');
+        cubeContainer.classList.remove('cube-expanded');
+        document.body.classList.remove('cube-immersive-active');
+
+        // Restore normal spin
+        velocityY = DEFAULT_VELOCITY_Y;
+        rotationX = DEFAULT_ROTATION_X;
+
+        // Remove face immersive class
+        cube.querySelectorAll('.face').forEach(face => {
+            face.classList.remove('face-immersive');
+        });
+
+        // Stop interior particles
+        stopInteriorParticles();
+    }
+
+    cubeContainer.addEventListener('click', (e) => {
+        if (isExpanded) return; // Inside expanded mode, clicks are for dragging/close
+        cubeClickCount++;
+        clearTimeout(cubeClickTimer);
+        cubeClickTimer = setTimeout(() => { cubeClickCount = 0; }, 1200);
+
+        // Sensing pulse at 2 clicks
+        if (cubeClickCount === 2) {
+            cubeContainer.classList.add('cube-sensing');
+            setTimeout(() => cubeContainer.classList.remove('cube-sensing'), 800);
+        }
+
+        if (cubeClickCount >= 3) {
+            cubeClickCount = 0;
+            enterCube();
+        }
+    });
+
+    closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        exitCube();
+    });
+    overlay.addEventListener('click', exitCube);
+
+    // ESC to exit
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && isExpanded) exitCube();
+    });
+
+    // ── Interior Particle System ──
+    let interiorParticles = [];
+    let interiorAnimId = null;
+
+    function startInteriorParticles() {
+        const ctx = interiorCanvas.getContext('2d');
+        interiorCanvas.width = window.innerWidth;
+        interiorCanvas.height = window.innerHeight;
+        interiorParticles = [];
+
+        // Spawn ambient particles — floating inside the cube
+        for (let i = 0; i < 60; i++) {
+            interiorParticles.push({
+                x: Math.random() * interiorCanvas.width,
+                y: Math.random() * interiorCanvas.height,
+                vx: (Math.random() - 0.5) * 0.4,
+                vy: (Math.random() - 0.5) * 0.4,
+                size: Math.random() * 2.5 + 0.5,
+                alpha: Math.random() * 0.4 + 0.1,
+                color: ['#667eea', '#764ba2', '#00f5d4', '#5a67d8'][Math.floor(Math.random() * 4)]
+            });
+        }
+
+        function drawInterior() {
+            ctx.clearRect(0, 0, interiorCanvas.width, interiorCanvas.height);
+            interiorParticles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                if (p.x < 0) p.x = interiorCanvas.width;
+                if (p.x > interiorCanvas.width) p.x = 0;
+                if (p.y < 0) p.y = interiorCanvas.height;
+                if (p.y > interiorCanvas.height) p.y = 0;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.alpha;
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1;
+
+            // Draw faint connection lines between nearby particles
+            for (let i = 0; i < interiorParticles.length; i++) {
+                for (let j = i + 1; j < interiorParticles.length; j++) {
+                    const a = interiorParticles[i];
+                    const b = interiorParticles[j];
+                    const dx = a.x - b.x;
+                    const dy = a.y - b.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 120) {
+                        ctx.beginPath();
+                        ctx.moveTo(a.x, a.y);
+                        ctx.lineTo(b.x, b.y);
+                        ctx.strokeStyle = a.color;
+                        ctx.globalAlpha = (1 - dist / 120) * 0.12;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                }
+            }
+            ctx.globalAlpha = 1;
+            interiorAnimId = requestAnimationFrame(drawInterior);
+        }
+        drawInterior();
+    }
+
+    function stopInteriorParticles() {
+        if (interiorAnimId) cancelAnimationFrame(interiorAnimId);
+        interiorAnimId = null;
+        interiorParticles = [];
+        const ctx = interiorCanvas.getContext('2d');
+        ctx.clearRect(0, 0, interiorCanvas.width, interiorCanvas.height);
+    }
+
     // Start animation loop
     animate();
     
-    console.log('Interactive cube initialized');
+    console.log('Interactive cube initialized (immersive expansion enabled)');
 }
 
 // ========================================
