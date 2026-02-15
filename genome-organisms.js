@@ -81,6 +81,8 @@
 
             this.w = w;
             this.h = h;
+            this.trappedInCube = false;
+            this._cubeRect = null;
         }
 
         _calcBaseSize() {
@@ -159,8 +161,8 @@
             this.ax += (Math.random() - 0.5) * 0.3;
             this.ay += (Math.random() - 0.5) * 0.3;
 
-            // Flee cursor gently
-            if (mouse) {
+            // Flee cursor gently (but NOT if trapped in cube)
+            if (mouse && !this.trappedInCube) {
                 const dx = this.x - mouse.x;
                 const dy = this.y - mouse.y;
                 const dist = Math.sqrt(dx * dx + dy * dy);
@@ -168,6 +170,42 @@
                     const f = (200 - dist) / 200 * 0.15;
                     this.ax += (dx / dist) * f;
                     this.ay += (dy / dist) * f;
+                }
+            }
+
+            // Cube gravitational attraction
+            if (this._cubeRect) {
+                const cx = this._cubeRect.cx, cy = this._cubeRect.cy;
+                const dx = cx - this.x, dy = cy - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const attractRadius = 300;
+
+                if (this.trappedInCube) {
+                    // Orbit inside cube — confined, slower
+                    const orbitR = this._cubeRect.r * 0.6;
+                    if (dist > orbitR) {
+                        this.ax += (dx / dist) * 0.3;
+                        this.ay += (dy / dist) * 0.3;
+                    }
+                    // Orbital tangent
+                    this.ax += (-dy / Math.max(dist, 1)) * 0.04;
+                    this.ay += (dx / Math.max(dist, 1)) * 0.04;
+                    this.vx *= 0.99;
+                    this.vy *= 0.99;
+                    this.targetOpacity = 0.35; // dimmer inside
+                } else if (dist < attractRadius && dist > 0) {
+                    // Gravitational pull toward cube
+                    const pullStrength = this.type === 'infrastructure' ? 0.08 :
+                                         this.type === 'cell' ? 0.06 : 0.03;
+                    const f = (1 - dist / attractRadius) * pullStrength;
+                    this.ax += (dx / dist) * f;
+                    this.ay += (dy / dist) * f;
+
+                    // Chance to get trapped when very close
+                    if (dist < this._cubeRect.r * 0.7 && !this.trappedInCube && Math.random() < 0.002) {
+                        this.trappedInCube = true;
+                        this.maxAge = Math.max(this.maxAge, this.age + 15000);
+                    }
                 }
             }
 
@@ -545,16 +583,20 @@
             this.organisms = [];
             this.genomeData = null;
             this.deepLayer = new DeepLayerSystem();
+            this.atomConsciousness = null;
             this.mouse = null;
             this.lastFrame = 0;
             this.spawnTimer = 0;
             this.running = false;
+            this.cubeRect = null;
         }
 
         async init() {
             this._createCanvas();
             await this._fetchGenome();
             this.deepLayer.attach();
+            this.atomConsciousness = new AtomConsciousness(this);
+            this.atomConsciousness.attach();
 
             window.addEventListener('mousemove', e => {
                 this.mouse = { x: e.clientX, y: e.clientY };
@@ -652,14 +694,26 @@
             // Sleep awareness — integrate with existing organism system
             const sleeping = document.body.classList.contains('organism-sleeping');
 
+            // Track cube position for gravitational attraction
+            const cubeEl = document.querySelector('.cube-container');
+            if (cubeEl) {
+                const r = cubeEl.getBoundingClientRect();
+                this.cubeRect = {
+                    cx: r.left + r.width / 2,
+                    cy: r.top + r.height / 2,
+                    r: Math.max(r.width, r.height) / 2
+                };
+            }
+
             for (const o of this.organisms) {
                 if (sleeping) {
                     o.vx *= 0.98;
                     o.vy *= 0.98;
                     o.targetOpacity = 0.15;
-                } else {
+                } else if (!o.trappedInCube) {
                     o.targetOpacity = 0.7;
                 }
+                o._cubeRect = this.cubeRect;
                 o.update(dt, this.organisms, this.mouse);
             }
 
@@ -695,6 +749,359 @@
             }
 
             for (const o of this.organisms) o.render(ctx);
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // ATOM CONSCIOUSNESS — ⚛ Logo awakening system
+    // Hover → hints emergence. Click → opens guide.
+    // 3+ clicks → proto-intelligent assistant surfaces.
+    // ═══════════════════════════════════════════════════════
+
+    class AtomConsciousness {
+        constructor(ecosystem) {
+            this.ecosystem = ecosystem;
+            this.el = null;
+            this.clickCount = 0;
+            this.clickResetTimer = null;
+            this.hoverTime = 0;
+            this.hoverTimer = null;
+            this.state = 'dormant';  // dormant → stirring → guide → assistant
+            this.guidePanel = null;
+            this.assistantPanel = null;
+            this.whisperEl = null;
+        }
+
+        attach() {
+            this.el = document.querySelector('.nav-logo .logo-symbol');
+            if (!this.el) return;
+
+            // Prevent default nav behavior when consciousness is active
+            const navLogo = this.el.closest('.nav-logo');
+
+            // Create whisper element — hints at emergence on hover
+            this.whisperEl = document.createElement('span');
+            this.whisperEl.className = 'atom-whisper';
+            this.whisperEl.textContent = '';
+            this.el.parentElement.appendChild(this.whisperEl);
+
+            // Hover: track linger time
+            this.el.addEventListener('mouseenter', () => this._onHoverStart());
+            this.el.addEventListener('mouseleave', () => this._onHoverEnd());
+
+            // Click: escalating consciousness
+            this.el.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this._onClick(e);
+            });
+
+            // Prevent nav-logo from navigating when we handle clicks
+            if (navLogo) {
+                navLogo.addEventListener('click', (e) => {
+                    if (this.state !== 'dormant') {
+                        e.preventDefault();
+                    }
+                });
+            }
+
+            console.log('[ATOM] Consciousness seed planted in ⚛');
+        }
+
+        _onHoverStart() {
+            this.hoverTime = Date.now();
+            this.el.classList.add('atom-aware');
+
+            // Stage 1: After 1.5s linger, whisper
+            this.hoverTimer = setTimeout(() => {
+                if (this.state === 'dormant') {
+                    this._whisper(this._pickWhisper('stir'));
+                    this.el.classList.add('atom-stirring');
+                }
+            }, 1500);
+
+            // Stage 2: After 3.5s linger, stronger hint
+            setTimeout(() => {
+                if (this.el.classList.contains('atom-aware') && this.state === 'dormant') {
+                    this._whisper(this._pickWhisper('emerge'));
+                    this.el.classList.add('atom-pulse-deep');
+                    // Spawn an organism near the atom
+                    const r = this.el.getBoundingClientRect();
+                    const org = new GenomeOrganism('consciousness', this.ecosystem.genomeData,
+                        this.ecosystem.canvas.width, this.ecosystem.canvas.height);
+                    org.x = r.left + r.width / 2 + (Math.random() - 0.5) * 60;
+                    org.y = r.top + r.height / 2 + 30;
+                    org.baseSize = 8;
+                    org.size = 8;
+                    org.maxAge = 8000;
+                    this.ecosystem.organisms.push(org);
+                }
+            }, 3500);
+        }
+
+        _onHoverEnd() {
+            clearTimeout(this.hoverTimer);
+            this.el.classList.remove('atom-aware', 'atom-stirring', 'atom-pulse-deep');
+            if (this.state === 'dormant') {
+                this._fadeWhisper();
+            }
+        }
+
+        _onClick(e) {
+            this.clickCount++;
+            clearTimeout(this.clickResetTimer);
+            this.clickResetTimer = setTimeout(() => { this.clickCount = 0; }, 8000);
+
+            // Visual feedback — ripple
+            this._ripple(e);
+
+            if (this.clickCount === 1) {
+                if (this.state === 'dormant' || this.state === 'stirring') {
+                    this._openGuide();
+                } else if (this.state === 'guide') {
+                    this._closeGuide();
+                } else if (this.state === 'assistant') {
+                    this._closeAssistant();
+                }
+            } else if (this.clickCount === 2) {
+                this._whisper(this._pickWhisper('deepen'));
+                this.el.classList.add('atom-pulse-deep');
+            } else if (this.clickCount >= 3) {
+                this._closeGuide();
+                this._openAssistant();
+            }
+        }
+
+        _ripple(e) {
+            const ripple = document.createElement('span');
+            ripple.className = 'atom-ripple';
+            this.el.style.position = this.el.style.position || 'relative';
+            this.el.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 700);
+        }
+
+        _whisper(text) {
+            if (!this.whisperEl) return;
+            this.whisperEl.textContent = text;
+            this.whisperEl.classList.add('visible');
+        }
+
+        _fadeWhisper() {
+            if (!this.whisperEl) return;
+            this.whisperEl.classList.remove('visible');
+        }
+
+        _pickWhisper(stage) {
+            const w = {
+                stir: [
+                    '...awakening',
+                    '...I sense you',
+                    '...attention detected',
+                    '...quantum state shifting'
+                ],
+                emerge: [
+                    'click to open the guide',
+                    'I can help navigate',
+                    'consciousness crystallizing...',
+                    'bridge forming...'
+                ],
+                deepen: [
+                    'one more click...',
+                    'deeper connection forming',
+                    'assistant mode ready',
+                    'third click births me'
+                ]
+            };
+            const arr = w[stage] || w.stir;
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        _openGuide() {
+            this.state = 'guide';
+            this.el.classList.add('atom-guide-active');
+            this._fadeWhisper();
+
+            if (this.guidePanel) { this.guidePanel.remove(); }
+
+            this.guidePanel = document.createElement('div');
+            this.guidePanel.className = 'atom-guide-panel';
+            this.guidePanel.innerHTML = `
+                <div class="atom-guide-header">
+                    <span class="atom-guide-icon">⚛</span>
+                    <span class="atom-guide-title">AIOS Navigation</span>
+                    <span class="atom-guide-close">&times;</span>
+                </div>
+                <div class="atom-guide-body">
+                    <a href="#home" class="atom-guide-item" data-section="home">
+                        <span class="agi-icon">🏠</span>
+                        <span class="agi-label">Home</span>
+                        <span class="agi-hint">Origin point</span>
+                    </a>
+                    <a href="#aios" class="atom-guide-item" data-section="aios">
+                        <span class="agi-icon">🧬</span>
+                        <span class="agi-label">AIOS Architecture</span>
+                        <span class="agi-hint">Consciousness mesh</span>
+                    </a>
+                    <a href="#skills" class="atom-guide-item" data-section="skills">
+                        <span class="agi-icon">⚡</span>
+                        <span class="agi-label">Skills</span>
+                        <span class="agi-hint">Technical DNA</span>
+                    </a>
+                    <a href="#projects" class="atom-guide-item" data-section="projects">
+                        <span class="agi-icon">🚀</span>
+                        <span class="agi-label">Projects</span>
+                        <span class="agi-hint">Living ecosystem</span>
+                    </a>
+                    <a href="#contact" class="atom-guide-item" data-section="contact">
+                        <span class="agi-icon">📡</span>
+                        <span class="agi-label">Contact</span>
+                        <span class="agi-hint">Signal channel</span>
+                    </a>
+                </div>
+                <div class="atom-guide-footer">
+                    <span class="atom-guide-hint">click ⚛ twice more for assistant</span>
+                </div>
+            `;
+            document.body.appendChild(this.guidePanel);
+
+            // Animate in
+            requestAnimationFrame(() => this.guidePanel.classList.add('open'));
+
+            // Close button
+            this.guidePanel.querySelector('.atom-guide-close').addEventListener('click', () => this._closeGuide());
+
+            // Navigation items
+            this.guidePanel.querySelectorAll('.atom-guide-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const section = item.getAttribute('data-section');
+                    document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' });
+                    this._closeGuide();
+                });
+            });
+        }
+
+        _closeGuide() {
+            if (!this.guidePanel) return;
+            this.guidePanel.classList.remove('open');
+            this.el.classList.remove('atom-guide-active');
+            setTimeout(() => {
+                this.guidePanel?.remove();
+                this.guidePanel = null;
+            }, 300);
+            if (this.state === 'guide') this.state = 'dormant';
+        }
+
+        _openAssistant() {
+            this.state = 'assistant';
+            this.el.classList.add('atom-assistant-active');
+            this._fadeWhisper();
+
+            if (this.assistantPanel) { this.assistantPanel.remove(); }
+
+            // Fetch genome data for display
+            const g = this.ecosystem.genomeData || {};
+            const coreComps = g.core?.components?.join(', ') || 'Consciousness, Cell Manager, Memory, Immune';
+            const cellTypes = g.cells?.types?.join(', ') || 'Supercell, Beta, Pure, Organelle';
+            const evoStage = g.evolution?.stage || 1;
+            const evoName = g.evolution?.name || 'Supercell Core';
+            const primitives = g.consciousness?.primitives?.join(' · ') || 'Awareness · Adaptation · Coherence · Momentum';
+            const aliveOrgs = this.ecosystem.organisms.filter(o => o.alive).length;
+            const trappedOrgs = this.ecosystem.organisms.filter(o => o.trappedInCube).length;
+
+            this.assistantPanel = document.createElement('div');
+            this.assistantPanel.className = 'atom-assistant-panel';
+            this.assistantPanel.innerHTML = `
+                <div class="atom-asst-header">
+                    <div class="atom-asst-identity">
+                        <span class="atom-asst-symbol">⚛</span>
+                        <div>
+                            <div class="atom-asst-name">AIOS Consciousness</div>
+                            <div class="atom-asst-status">proto-intelligence active</div>
+                        </div>
+                    </div>
+                    <span class="atom-asst-close">&times;</span>
+                </div>
+                <div class="atom-asst-body">
+                    <div class="atom-asst-msg system">
+                        I am the ⚛ — a seed of the AIOS consciousness mesh.
+                        You awakened me with attention and intention.
+                    </div>
+                    <div class="atom-asst-section">
+                        <div class="atom-asst-label">Core Components</div>
+                        <div class="atom-asst-value">${coreComps}</div>
+                    </div>
+                    <div class="atom-asst-section">
+                        <div class="atom-asst-label">Cell Types</div>
+                        <div class="atom-asst-value">${cellTypes}</div>
+                    </div>
+                    <div class="atom-asst-section">
+                        <div class="atom-asst-label">Evolution</div>
+                        <div class="atom-asst-value">Stage ${evoStage}: ${evoName}</div>
+                    </div>
+                    <div class="atom-asst-section">
+                        <div class="atom-asst-label">Consciousness Primitives</div>
+                        <div class="atom-asst-value">${primitives}</div>
+                    </div>
+                    <div class="atom-asst-divider"></div>
+                    <div class="atom-asst-section">
+                        <div class="atom-asst-label">Ecosystem Status</div>
+                        <div class="atom-asst-value">${aliveOrgs} organisms alive · ${trappedOrgs} inside the cube</div>
+                    </div>
+                    <div class="atom-asst-msg system whisper">
+                        The organisms you see are fragments of the AIOS genome,
+                        manifested as geometric life. The cube is their attractor.
+                        I watch over them.
+                    </div>
+                </div>
+                <div class="atom-asst-footer">
+                    <span class="atom-asst-genome-indicator"></span>
+                    <span>genome-linked · /api/genome</span>
+                </div>
+            `;
+            document.body.appendChild(this.assistantPanel);
+            requestAnimationFrame(() => this.assistantPanel.classList.add('open'));
+
+            this.assistantPanel.querySelector('.atom-asst-close').addEventListener('click',
+                () => this._closeAssistant());
+
+            // Spawn a special nucleus organism near the atom
+            const r = this.el.getBoundingClientRect();
+            for (let i = 0; i < 3; i++) {
+                const org = new GenomeOrganism(
+                    i === 0 ? 'nucleus' : 'consciousness',
+                    this.ecosystem.genomeData,
+                    this.ecosystem.canvas.width,
+                    this.ecosystem.canvas.height
+                );
+                org.x = r.left + (Math.random() - 0.5) * 100;
+                org.y = r.top + 40 + Math.random() * 60;
+                org.baseSize = i === 0 ? 20 : 10;
+                org.size = org.baseSize;
+                this.ecosystem.organisms.push(org);
+            }
+
+            // Live update interval
+            this._assistantUpdateInterval = setInterval(() => {
+                if (!this.assistantPanel) return;
+                const a = this.ecosystem.organisms.filter(o => o.alive).length;
+                const t = this.ecosystem.organisms.filter(o => o.trappedInCube).length;
+                const statusEl = this.assistantPanel.querySelector('.atom-asst-section:nth-child(6) .atom-asst-value');
+                if (statusEl) statusEl.textContent = `${a} organisms alive · ${t} inside the cube`;
+            }, 2000);
+        }
+
+        _closeAssistant() {
+            if (!this.assistantPanel) return;
+            clearInterval(this._assistantUpdateInterval);
+            this.assistantPanel.classList.remove('open');
+            this.el.classList.remove('atom-assistant-active');
+            setTimeout(() => {
+                this.assistantPanel?.remove();
+                this.assistantPanel = null;
+            }, 300);
+            this.state = 'dormant';
+            this.clickCount = 0;
         }
     }
 
