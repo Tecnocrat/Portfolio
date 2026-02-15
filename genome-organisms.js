@@ -597,6 +597,8 @@
             this.deepLayer.attach();
             this.atomConsciousness = new AtomConsciousness(this);
             this.atomConsciousness.attach();
+            this.agentInfoCards = new AgentInfoCards(this);
+            this.agentInfoCards.attach();
 
             window.addEventListener('mousemove', e => {
                 this.mouse = { x: e.clientX, y: e.clientY };
@@ -1102,6 +1104,244 @@
             }, 300);
             this.state = 'dormant';
             this.clickCount = 0;
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // AGENT INFO CARDS — Triple-click reveals element context
+    // The ⚛ atom agent "delivers" info cards when users apply
+    // the learned triple-click gesture to registered elements.
+    // ═══════════════════════════════════════════════════════
+
+    const INFO_REGISTRY = {
+        '.logo-text': {
+            title: 'Tecnocrat',
+            icon: '⚛',
+            body: 'The identity behind AIOS. Tecnocrat is the development alias of Jesus Sard Gonzalez — an AI Systems Architect building autonomous, bio-inspired distributed platforms.',
+            details: [
+                { label: 'Focus', value: 'AI Systems Architecture' },
+                { label: 'Core Project', value: 'AIOS — Artificial Intelligence Operative System' },
+                { label: 'Stack', value: 'Python · C++ · C# · TypeScript' },
+                { label: 'Infrastructure', value: '18+ Docker containers, multi-host mesh' }
+            ],
+            accentColor: '#667eea'
+        },
+        '.cube-container': {
+            title: 'Technology Cube',
+            icon: '🧊',
+            body: 'Interactive 3D cube representing the four core technology pillars of AIOS. Each face maps to a language or capability layer. The cube also acts as a gravitational attractor for the background particle system.',
+            details: [
+                { label: 'Front', value: 'Python — AI Core & orchestration' },
+                { label: 'Back', value: 'C++ — Performance engine (pybind11)' },
+                { label: 'Right', value: 'C# — Desktop interface (WPF/.NET 8)' },
+                { label: 'Left', value: 'Security — Defense-in-depth layer' },
+                { label: 'Physics', value: 'Attracts nearby geometric entities' }
+            ],
+            accentColor: '#00f5d4'
+        },
+        '.hero-title': {
+            title: 'About Me',
+            icon: '👨‍💻',
+            body: 'Jesus Sard Gonzalez — AI systems architect based in Spain, building full-stack intelligent platforms that combine multi-agent AI, distributed infrastructure, and real quantum computing.',
+            details: [
+                { label: 'Role', value: 'AI Systems Architect' },
+                { label: 'Experience', value: 'Full-stack + DevOps + AI' },
+                { label: 'Location', value: 'Spain' }
+            ],
+            accentColor: '#764ba2'
+        },
+        '.section-title': {
+            title: 'Section',
+            icon: '📑',
+            body: 'Each section of this portfolio maps to a layer of the AIOS ecosystem — from architecture and skills to live projects and contact channels.',
+            details: [],
+            accentColor: '#667eea'
+        },
+        '.feature-card': {
+            title: 'Feature',
+            icon: '⚡',
+            body: null,  // auto-reads from element content
+            details: [],
+            accentColor: '#00f5d4'
+        },
+        '.project-card': {
+            title: 'Project',
+            icon: '🚀',
+            body: null,  // auto-reads from element content
+            details: [],
+            accentColor: '#ff6b35'
+        }
+    };
+
+    class AgentInfoCards {
+        constructor(ecosystem) {
+            this.ecosystem = ecosystem;
+            this.targets = [];
+            this.activeCard = null;
+        }
+
+        attach() {
+            for (const [selector, info] of Object.entries(INFO_REGISTRY)) {
+                document.querySelectorAll(selector).forEach(el => {
+                    const target = {
+                        el,
+                        selector,
+                        info,
+                        clickCount: 0,
+                        resetTimer: null
+                    };
+                    el.addEventListener('click', (e) => this._onTripleClick(e, target));
+                    el.classList.add('agent-info-target');
+                    this.targets.push(target);
+                });
+            }
+            console.log('[AGENT] Info card system attached to %d elements', this.targets.length);
+        }
+
+        _onTripleClick(e, target) {
+            target.clickCount++;
+            clearTimeout(target.resetTimer);
+            target.resetTimer = setTimeout(() => { target.clickCount = 0; }, 1200);
+
+            // Visual hint at 2 clicks — subtle pulse on the atom
+            if (target.clickCount === 2) {
+                const atom = document.querySelector('.logo-symbol');
+                if (atom) {
+                    atom.classList.add('agent-sensing');
+                    setTimeout(() => atom.classList.remove('agent-sensing'), 800);
+                }
+            }
+
+            if (target.clickCount >= 3) {
+                e.preventDefault();
+                e.stopPropagation();
+                target.clickCount = 0;
+                this._showCard(target);
+            }
+        }
+
+        _showCard(target) {
+            // Close any existing card
+            this._closeCard();
+
+            const info = target.info;
+            const rect = target.el.getBoundingClientRect();
+
+            // Auto-read body from element if not set
+            let body = info.body;
+            if (!body) {
+                const heading = target.el.querySelector('h3, h4');
+                const para = target.el.querySelector('p');
+                const title = heading ? heading.textContent : target.el.textContent.trim().slice(0, 60);
+                body = para ? para.textContent : title;
+            }
+
+            // Auto-read title from heading inside the element
+            let cardTitle = info.title;
+            if (cardTitle === 'Feature' || cardTitle === 'Project' || cardTitle === 'Section') {
+                const heading = target.el.querySelector('h2, h3, h4');
+                if (heading) cardTitle = heading.textContent.trim();
+            }
+
+            // Build detail rows
+            let detailsHtml = '';
+            if (info.details && info.details.length) {
+                detailsHtml = info.details.map(d =>
+                    `<div class="agent-card-detail">
+                        <span class="agent-card-detail-label">${d.label}</span>
+                        <span class="agent-card-detail-value">${d.value}</span>
+                    </div>`
+                ).join('');
+            }
+
+            // Read tech tags from project/feature cards
+            const techTags = target.el.querySelectorAll('.project-tech span, .tech-badge, .skill-tag');
+            let techHtml = '';
+            if (techTags.length) {
+                techHtml = '<div class="agent-card-tags">' +
+                    Array.from(techTags).map(t => `<span>${t.textContent}</span>`).join('') +
+                    '</div>';
+            }
+
+            const card = document.createElement('div');
+            card.className = 'agent-info-card';
+            card.style.setProperty('--agent-accent', info.accentColor);
+            card.innerHTML = `
+                <div class="agent-card-connector"></div>
+                <div class="agent-card-header">
+                    <span class="agent-card-icon">${info.icon}</span>
+                    <span class="agent-card-title">${cardTitle}</span>
+                    <span class="agent-card-badge">⚛ agent</span>
+                    <span class="agent-card-close">&times;</span>
+                </div>
+                <div class="agent-card-body">
+                    <p>${body}</p>
+                    ${detailsHtml}
+                    ${techHtml}
+                </div>
+                <div class="agent-card-footer">
+                    <span class="agent-card-hint">triple-click any highlighted element</span>
+                </div>
+            `;
+
+            // Position: below the element, centered
+            document.body.appendChild(card);
+            const cardW = 340;
+            let left = rect.left + rect.width / 2 - cardW / 2;
+            let top = rect.bottom + 12;
+
+            // Keep on screen
+            if (left < 12) left = 12;
+            if (left + cardW > window.innerWidth - 12) left = window.innerWidth - cardW - 12;
+            if (top + 300 > window.innerHeight) top = rect.top - 12;  // flip above
+
+            card.style.left = left + 'px';
+            card.style.top = top + 'px';
+
+            this.activeCard = card;
+
+            // Animate in
+            requestAnimationFrame(() => card.classList.add('open'));
+
+            // Spawn an organism near the target
+            const org = new GenomeOrganism('consciousness',
+                this.ecosystem.genomeData,
+                this.ecosystem.canvas.width,
+                this.ecosystem.canvas.height);
+            org.x = rect.left + rect.width / 2;
+            org.y = rect.top + rect.height / 2;
+            org.baseSize = 10;
+            org.size = 10;
+            org.maxAge = 6000;
+            this.ecosystem.organisms.push(org);
+
+            // Flash the atom
+            const atom = document.querySelector('.logo-symbol');
+            if (atom) {
+                atom.classList.add('agent-delivering');
+                setTimeout(() => atom.classList.remove('agent-delivering'), 1200);
+            }
+
+            // Close handlers
+            card.querySelector('.agent-card-close').addEventListener('click', () => this._closeCard());
+            document.addEventListener('click', this._outsideClose = (e) => {
+                if (!card.contains(e.target) && !target.el.contains(e.target)) {
+                    this._closeCard();
+                }
+            }, { once: true, capture: true });
+
+            // Highlight the source element
+            target.el.classList.add('agent-info-active');
+        }
+
+        _closeCard() {
+            if (!this.activeCard) return;
+            this.activeCard.classList.remove('open');
+            document.querySelectorAll('.agent-info-active').forEach(el =>
+                el.classList.remove('agent-info-active'));
+            const card = this.activeCard;
+            this.activeCard = null;
+            setTimeout(() => card?.remove(), 300);
         }
     }
 
