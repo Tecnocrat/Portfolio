@@ -1120,23 +1120,6 @@ function initInteractiveCube() {
         { pos: [0, S,0], icon: '\ud83e\udde0', label: 'AI Core' }
     ];
 
-    // Interior particles
-    let hParticles = [];
-
-    function spawnParticles() {
-        hParticles = [];
-        for (let i = 0; i < 100; i++) {
-            hParticles.push({
-                x: (Math.random()-0.5)*S*1.6, y: (Math.random()-0.5)*S*1.6,
-                z: (Math.random()-0.5)*S*1.6,
-                vx: (Math.random()-0.5)*0.006, vy: (Math.random()-0.5)*0.006,
-                vz: (Math.random()-0.5)*0.006,
-                sz: Math.random()*2+0.5,
-                col: ['#667eea','#764ba2','#00f5d4','#5a67d8','#f72585'][Math.floor(Math.random()*5)]
-            });
-        }
-    }
-
     // ── Grid floor (spatial grounding) ──
     function drawGrid(ctx, w, h) {
         const gridY = S * 0.95;  // floor level
@@ -1181,7 +1164,6 @@ function initInteractiveCube() {
         entryAlpha = 0;
         camYaw = 0; camPitch = 0;
         targetYaw = 0; targetPitch = 0;
-        spawnParticles();
 
         document.body.classList.add('hypercube-active');
         hyperCanvas.classList.add('active');
@@ -1371,48 +1353,6 @@ function initInteractiveCube() {
                 : `rgba(184,197,214,${0.3 * entryAlpha})`;
             ctx.fillText(face.label, p[0], p[1] + scale * 0.35);
         });
-
-        // ── Floating particles ──
-        ctx.shadowBlur = 0;
-        hParticles.forEach(pt => {
-            pt.x += pt.vx; pt.y += pt.vy; pt.z += pt.vz;
-            if (Math.abs(pt.x) > S) pt.vx *= -1;
-            if (Math.abs(pt.y) > S) pt.vy *= -1;
-            if (Math.abs(pt.z) > S) pt.vz *= -1;
-
-            const pp = xform([pt.x, pt.y, pt.z], w, h);
-            if (!pp || pp[2] <= 0) return;
-
-            const sz = (pt.sz * 300) / pp[2];
-            ctx.beginPath();
-            ctx.arc(pp[0], pp[1], Math.max(sz, 0.4), 0, Math.PI * 2);
-            ctx.fillStyle = pt.col;
-            ctx.globalAlpha = Math.min(0.5, 2.5 / pp[2]) * entryAlpha;
-            ctx.fill();
-        });
-        ctx.globalAlpha = 1;
-
-        // ── Particle connection lines ──
-        for (let i = 0; i < hParticles.length; i++) {
-            for (let j = i + 1; j < hParticles.length; j++) {
-                const a = hParticles[i], b = hParticles[j];
-                const dx = a.x - b.x, dy = a.y - b.y, dz = a.z - b.z;
-                const d = Math.sqrt(dx*dx + dy*dy + dz*dz);
-                if (d < 1.8) {
-                    const pa = xform([a.x, a.y, a.z], w, h);
-                    const pb = xform([b.x, b.y, b.z], w, h);
-                    if (!pa || !pb) continue;
-                    ctx.beginPath();
-                    ctx.moveTo(pa[0], pa[1]);
-                    ctx.lineTo(pb[0], pb[1]);
-                    ctx.strokeStyle = a.col;
-                    ctx.globalAlpha = (1 - d/1.8) * 0.08 * entryAlpha;
-                    ctx.lineWidth = 0.4;
-                    ctx.stroke();
-                }
-            }
-        }
-        ctx.globalAlpha = 1;
 
         // ── Scanlines ──
         drawScanlines(ctx, w, h);
