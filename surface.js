@@ -15,7 +15,7 @@
 const TecnocratSurface = {
     metadata: {
         version: "3.1.0",
-        lastSync: "2026-02-14",
+        lastSync: "2026-04-02",
         curator: "Tecnocrat",
         sourceManifest: "exposed_surface.yaml",
         apiEndpoint: "https://tecnocrat-api.vercel.app/api"
@@ -105,6 +105,18 @@ const TecnocratSurface = {
         evolution: {
             name: "Evolution Lab",
             exposed: [
+                {
+                    id: "genome_propagation",
+                    name: "Genome Propagation",
+                    level: "L2_TECHNICAL",
+                    description: "Persistent digital genomes auto-inject into agent context windows, achieving identity continuity through genetic expression",
+                    displayContent: {
+                        concept: "DNA → Protein Expression for AI",
+                        pattern: "copilot-instructions.md → context window → operational behavior",
+                        mechanism: "Fractal Knowledge Cascade: Genome → Crystal → Situation → State",
+                        insight: "Agents don't remember who they are — they become who they are, from code"
+                    }
+                },
                 {
                     id: "successful_experiments",
                     name: "Successful Experiments",
@@ -236,7 +248,7 @@ const TecnocratSurface = {
         testsPassed: 170,
         pythonModules: 769,
         securityScore: 97.6,
-        aiAgents: 5,
+        aiAgents: 7,
         commits: 658,
         repositories: 19,
         quantumBackend: "IBM Heron 156-qubit",
