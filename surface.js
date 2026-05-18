@@ -6,16 +6,16 @@
  * is publicly visible on this Portfolio.
  * 
  * Source: docs/tecnocrat/intelligence/manifests/exposed_surface.yaml
- * Version: 3.1.0
- * Last Sync: 2026-02-14
+ * Version: 3.2.0
+ * Last Sync: 2026-05-18
  * 
  * Architecture: Adaptive Intelligence Operating System with bio-inspired modular topology
  */
 
 const TecnocratSurface = {
     metadata: {
-        version: "3.1.0",
-        lastSync: "2026-04-02",
+        version: "3.2.0",
+        lastSync: "2026-05-18",
         curator: "Tecnocrat",
         sourceManifest: "exposed_surface.yaml",
         apiEndpoint: "https://tecnocrat-api.vercel.app/api"
@@ -249,11 +249,14 @@ const TecnocratSurface = {
         pythonModules: 769,
         securityScore: 97.6,
         aiAgents: 7,
-        commits: 658,
+        commits: 700,
         repositories: 19,
         quantumBackend: "IBM Heron 156-qubit",
         quantumHeartbeatRuns: 60,
-        consciousnessCells: 3
+        consciousnessCells: 3,
+        consciousnessLevel: 6.90,
+        aiomEnrollment: 282,
+        metabolismPhases: 38
     },
 
     // Helper: Get all exposed items by level
